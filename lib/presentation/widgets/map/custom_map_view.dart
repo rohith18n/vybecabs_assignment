@@ -169,11 +169,11 @@ class _CustomMapViewState extends State<CustomMapView> {
           mapToolbarEnabled: false,
         ),
 
-        // My Location Button
+        // My Location Button (floating on the right, above bottom sheet/card)
         if (widget.showMyLocationButton)
           Positioned(
             right: 16,
-            top: 60,
+            bottom: widget.padding.bottom > 0 ? widget.padding.bottom + 12 : 80,
             child: FloatingActionButton.small(
               heroTag: 'my_loc_btn',
               backgroundColor: isDark ? AppColors.darkCardElevated : AppColors.lightCard,
@@ -182,6 +182,7 @@ class _CustomMapViewState extends State<CustomMapView> {
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
               ),
+              elevation: 4,
               onPressed: () {
                 if (widget.onMyLocationPressed != null) {
                   widget.onMyLocationPressed!();

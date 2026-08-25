@@ -46,16 +46,18 @@ class _HomeScreenState extends State<HomeScreen> {
         return LocationPickerSheet(
           hotspots: hotspots,
           onLocationSelected: (selectedLocation) {
-            context.read<LocationBloc>().add(SelectDestinationEvent(selectedLocation));
+            context.read<LocationBloc>().add(
+              SelectDestinationEvent(selectedLocation),
+            );
 
             final locState = context.read<LocationBloc>().state;
             if (locState is LocationLoaded) {
               context.read<BookingBloc>().add(
-                    ConfigureBookingEvent(
-                      pickup: locState.currentPickup,
-                      destination: selectedLocation,
-                    ),
-                  );
+                ConfigureBookingEvent(
+                  pickup: locState.currentPickup,
+                  destination: selectedLocation,
+                ),
+              );
             }
           },
         );
@@ -94,7 +96,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -103,7 +107,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     backgroundColor: AppColors.primary,
                     child: Text(
                       userName.isNotEmpty ? userName[0].toUpperCase() : 'V',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   title: Text(userName, style: theme.textTheme.titleLarge),
@@ -112,21 +119,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 Divider(
                   height: 24,
-                  color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                  color: isDark
+                      ? AppColors.darkDivider
+                      : AppColors.lightDivider,
                 ),
                 ListTile(
-                  leading: const Icon(Icons.history_rounded, color: AppColors.primary),
-                  title: Text(AppStrings.rideHistory, style: theme.textTheme.titleMedium),
-                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                  leading: const Icon(
+                    Icons.history_rounded,
+                    color: AppColors.primary,
+                  ),
+                  title: Text(
+                    AppStrings.rideHistory,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 14,
+                  ),
                   onTap: () {
                     Navigator.pop(modalContext);
                     context.push(RoutePaths.history);
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.logout_rounded, color: AppColors.error),
-                  title: Text(AppStrings.logout,
-                      style: theme.textTheme.titleMedium?.copyWith(color: AppColors.error)),
+                  leading: const Icon(
+                    Icons.logout_rounded,
+                    color: AppColors.error,
+                  ),
+                  title: Text(
+                    AppStrings.logout,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: AppColors.error,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.pop(modalContext);
                     context.read<AuthBloc>().add(SignOutRequested());
@@ -189,24 +214,34 @@ class _HomeScreenState extends State<HomeScreen> {
             // Top Floating Header: Logo & Action Buttons
             SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Brand Badge
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: isDark
                             ? AppColors.darkSurface.withValues(alpha: 0.92)
                             : AppColors.lightSurface.withValues(alpha: 0.95),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                          color: isDark
+                              ? AppColors.darkBorder
+                              : AppColors.lightBorder,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+                            color: Colors.black.withValues(
+                              alpha: isDark ? 0.3 : 0.08,
+                            ),
                             blurRadius: 10,
                             offset: const Offset(0, 2),
                           ),
@@ -254,11 +289,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           backgroundColor: isDark
                               ? AppColors.darkSurface.withValues(alpha: 0.92)
                               : AppColors.lightSurface.withValues(alpha: 0.95),
-                          foregroundColor: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          foregroundColor: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                             side: BorderSide(
-                              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                              color: isDark
+                                  ? AppColors.darkBorder
+                                  : AppColors.lightBorder,
                             ),
                           ),
                           elevation: 2,
@@ -277,7 +316,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                             side: BorderSide(
-                              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                              color: isDark
+                                  ? AppColors.darkBorder
+                                  : AppColors.lightBorder,
                             ),
                           ),
                           elevation: 2,
@@ -297,10 +338,15 @@ class _HomeScreenState extends State<HomeScreen> {
               child: BlocBuilder<LocationBloc, LocationState>(
                 builder: (context, locState) {
                   if (locState is! LocationLoaded) {
-                    return Container(
-                      padding: const EdgeInsets.all(24),
-                      child: const Center(
-                        child: CircularProgressIndicator(color: AppColors.primary),
+                    return SafeArea(
+                      top: false,
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
+                        ),
                       ),
                     );
                   }
@@ -317,10 +363,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           distanceKm: bookingState.distanceKm,
                           estimatedFare: bookingState.estimatedFare,
                           onVehicleSelected: (v) {
-                            context.read<BookingBloc>().add(SelectVehicleTypeEvent(v));
+                            context.read<BookingBloc>().add(
+                              SelectVehicleTypeEvent(v),
+                            );
                           },
                           onBookRide: () {
-                            context.read<BookingBloc>().add(RequestBookRideEvent());
+                            context.read<BookingBloc>().add(
+                              RequestBookRideEvent(),
+                            );
                           },
                           onChangeDestination: () {
                             _showLocationPicker(locState.hotspots);
@@ -329,117 +379,154 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
 
                       // Default: "Where to?" Search Card
-                      return Container(
-                        margin: const EdgeInsets.all(16),
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-                          borderRadius: BorderRadius.circular(22),
-                          border: Border.all(
-                            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
-                              blurRadius: 20,
-                              offset: const Offset(0, 4),
+                      return SafeArea(
+                        top: false,
+                        child: Container(
+                          margin: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppColors.darkSurface
+                                : AppColors.lightSurface,
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(
+                              color: isDark
+                                  ? AppColors.darkBorder
+                                  : AppColors.lightBorder,
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Where to today?',
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(
+                                  alpha: isDark ? 0.35 : 0.08,
+                                ),
+                                blurRadius: 20,
+                                offset: const Offset(0, 4),
                               ),
-                            ),
-                            const SizedBox(height: 12),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Where to today?',
+                                style: theme.textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
 
-                            // Interactive search bar trigger
-                            GestureDetector(
-                              onTap: () => _showLocationPicker(locState.hotspots),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                decoration: BoxDecoration(
-                                  color: isDark ? AppColors.darkCard : AppColors.lightChip,
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(
-                                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                              // Interactive search bar trigger
+                              GestureDetector(
+                                onTap: () =>
+                                    _showLocationPicker(locState.hotspots),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 14,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? AppColors.darkCard
+                                        : AppColors.lightChip,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: isDark
+                                          ? AppColors.darkBorder
+                                          : AppColors.lightBorder,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.search_rounded,
+                                        color: AppColors.primary,
+                                        size: 22,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        AppStrings.searchDestination,
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              color: isDark
+                                                  ? AppColors.darkTextMuted
+                                                  : AppColors.lightTextMuted,
+                                            ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.search_rounded,
-                                        color: AppColors.primary, size: 22),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      AppStrings.searchDestination,
-                                      style: theme.textTheme.bodyMedium?.copyWith(
-                                        color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                                      ),
-                                    ),
-                                  ],
+                              ),
+                              const SizedBox(height: 14),
+
+                              // Quick Hotspot Chips
+                              Text(
+                                AppStrings.popularDestinations,
+                                style: TextStyle(
+                                  color: isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.lightTextSecondary,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 14),
+                              const SizedBox(height: 8),
 
-                            // Quick Hotspot Chips
-                            Text(
-                              AppStrings.popularDestinations,
-                              style: TextStyle(
-                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: locState.hotspots.map((hotspot) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 8.0),
-                                    child: ActionChip(
-                                      avatar: const Icon(
-                                        Icons.location_on_outlined,
-                                        size: 16,
-                                        color: AppColors.primary,
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: locState.hotspots.map((hotspot) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        right: 8.0,
                                       ),
-                                      label: Text(
-                                        hotspot.title,
-                                        style: TextStyle(
-                                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 13,
+                                      child: ActionChip(
+                                        avatar: const Icon(
+                                          Icons.location_on_outlined,
+                                          size: 16,
+                                          color: AppColors.primary,
                                         ),
+                                        label: Text(
+                                          hotspot.title,
+                                          style: TextStyle(
+                                            color: isDark
+                                                ? AppColors.darkTextPrimary
+                                                : AppColors.lightTextPrimary,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                        backgroundColor: isDark
+                                            ? AppColors.darkCard
+                                            : AppColors.lightChip,
+                                        side: BorderSide(
+                                          color: isDark
+                                              ? AppColors.darkBorder
+                                              : AppColors.lightBorder,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          context.read<LocationBloc>().add(
+                                            SelectDestinationEvent(hotspot),
+                                          );
+                                          context.read<BookingBloc>().add(
+                                            ConfigureBookingEvent(
+                                              pickup: locState.currentPickup,
+                                              destination: hotspot,
+                                            ),
+                                          );
+                                        },
                                       ),
-                                      backgroundColor: isDark ? AppColors.darkCard : AppColors.lightChip,
-                                      side: BorderSide(
-                                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      onPressed: () {
-                                        context.read<LocationBloc>().add(SelectDestinationEvent(hotspot));
-                                        context.read<BookingBloc>().add(
-                                              ConfigureBookingEvent(
-                                                pickup: locState.currentPickup,
-                                                destination: hotspot,
-                                              ),
-                                            );
-                                      },
-                                    ),
-                                  );
-                                }).toList(),
+                                    );
+                                  }).toList(),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     },
