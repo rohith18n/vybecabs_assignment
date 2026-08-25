@@ -375,20 +375,28 @@ class _HomeScreenState extends State<HomeScreen> {
                           onChangeDestination: () {
                             _showLocationPicker(locState.hotspots);
                           },
+                          onClose: () {
+                            context.read<BookingBloc>().add(
+                              ResetBookingEvent(),
+                            );
+                            context.read<LocationBloc>().add(
+                              ClearDestinationEvent(),
+                            );
+                          },
                         );
                       }
 
-                      // Default: "Where to?" Search Card
+                      // Default: "Where to?" Search Card (Compact & Modern)
                       return SafeArea(
                         top: false,
                         child: Container(
-                          margin: const EdgeInsets.all(16),
-                          padding: const EdgeInsets.all(18),
+                          margin: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: isDark
                                 ? AppColors.darkSurface
                                 : AppColors.lightSurface,
-                            borderRadius: BorderRadius.circular(22),
+                            borderRadius: BorderRadius.circular(18),
                             border: Border.all(
                               color: isDark
                                   ? AppColors.darkBorder
@@ -399,8 +407,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.black.withValues(
                                   alpha: isDark ? 0.35 : 0.08,
                                 ),
-                                blurRadius: 20,
-                                offset: const Offset(0, 4),
+                                blurRadius: 16,
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
@@ -410,11 +418,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text(
                                 'Where to today?',
-                                style: theme.textTheme.headlineMedium?.copyWith(
+                                style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w800,
+                                  fontSize: 16.5,
                                 ),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 10),
 
                               // Interactive search bar trigger
                               GestureDetector(
@@ -422,14 +431,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                     _showLocationPicker(locState.hotspots),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 14,
+                                    horizontal: 14,
+                                    vertical: 10,
                                   ),
                                   decoration: BoxDecoration(
                                     color: isDark
                                         ? AppColors.darkCard
                                         : AppColors.lightChip,
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
                                       color: isDark
                                           ? AppColors.darkBorder
@@ -441,9 +450,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       const Icon(
                                         Icons.search_rounded,
                                         color: AppColors.primary,
-                                        size: 22,
+                                        size: 18,
                                       ),
-                                      const SizedBox(width: 12),
+                                      const SizedBox(width: 10),
                                       Text(
                                         AppStrings.searchDestination,
                                         style: theme.textTheme.bodyMedium
@@ -451,13 +460,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                               color: isDark
                                                   ? AppColors.darkTextMuted
                                                   : AppColors.lightTextMuted,
+                                              fontSize: 13,
                                             ),
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 14),
+                              const SizedBox(height: 10),
 
                               // Quick Hotspot Chips
                               Text(
@@ -467,10 +477,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ? AppColors.darkTextSecondary
                                       : AppColors.lightTextSecondary,
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 12,
+                                  fontSize: 11,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
 
                               SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
@@ -478,12 +488,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   children: locState.hotspots.map((hotspot) {
                                     return Padding(
                                       padding: const EdgeInsets.only(
-                                        right: 8.0,
+                                        right: 6.0,
                                       ),
                                       child: ActionChip(
+                                        visualDensity: VisualDensity.compact,
                                         avatar: const Icon(
-                                          Icons.location_on_outlined,
-                                          size: 16,
+                                          Icons.near_me_rounded,
+                                          size: 13,
                                           color: AppColors.primary,
                                         ),
                                         label: Text(
@@ -493,7 +504,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 ? AppColors.darkTextPrimary
                                                 : AppColors.lightTextPrimary,
                                             fontWeight: FontWeight.w500,
-                                            fontSize: 13,
+                                            fontSize: 11.5,
                                           ),
                                         ),
                                         backgroundColor: isDark
@@ -506,7 +517,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
-                                            20,
+                                            16,
                                           ),
                                         ),
                                         onPressed: () {

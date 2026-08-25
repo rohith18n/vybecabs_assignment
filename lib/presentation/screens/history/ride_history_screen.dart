@@ -31,88 +31,130 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (modalContext) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                      borderRadius: BorderRadius.circular(2),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Floating Close Button outside the bottom sheet
+            Center(
+              child: GestureDetector(
+                onTap: () => Navigator.of(modalContext).pop(),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isDark
+                        ? AppColors.darkCardElevated
+                        : const Color(0xFF1E2024),
+                    border: Border.all(
+                      color: isDark ? AppColors.darkBorder : Colors.white24,
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.close_rounded,
+                      size: 18,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Ride Receipt',
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
+              ),
+            ),
+
+            // Main Receipt Container
+            Container(
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Ride Receipt',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: AppColors.success.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              'COMPLETED',
+                              style: AppTextStyles.labelSmall.copyWith(
+                                color: AppColors.success,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.success.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        'COMPLETED',
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.success,
-                          fontWeight: FontWeight.w800,
+                      const SizedBox(height: 4),
+                      Text(
+                        'Trip ID: ${ride.id}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontFamily: 'monospace',
+                          fontSize: 10.5,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      Divider(color: isDark ? AppColors.darkDivider : AppColors.lightDivider, height: 1),
+                      const SizedBox(height: 8),
+                      _ReceiptRow(label: 'Cab Type', value: ride.vehicleType.name),
+                      _ReceiptRow(
+                          label: 'Captain', value: ride.driver?.name ?? 'Vybe Captain'),
+                      _ReceiptRow(
+                          label: 'Car Reg', value: ride.driver?.carNumber ?? 'KA-01-MJ-4829'),
+                      _ReceiptRow(
+                          label: 'Distance', value: '${ride.distanceKm.toStringAsFixed(1)} km'),
+                      _ReceiptRow(label: 'Date & Time', value: UiHelpers.formatDate(ride.createdAt)),
+                      _ReceiptRow(label: 'Payment Method', value: 'Vybe Pay / UPI'),
+                      const SizedBox(height: 4),
+                      Divider(color: isDark ? AppColors.darkDivider : AppColors.lightDivider, height: 1),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Total Fare Paid',
+                              style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                          Text(
+                            UiHelpers.formatCurrency(ride.fare),
+                            style: AppTextStyles.priceLarge.copyWith(fontSize: 20),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Trip ID: ${ride.id}',
-                  style: theme.textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
-                ),
-                const SizedBox(height: 16),
-                Divider(color: isDark ? AppColors.darkDivider : AppColors.lightDivider),
-                const SizedBox(height: 12),
-                _ReceiptRow(label: 'Cab Type', value: ride.vehicleType.name),
-                _ReceiptRow(
-                    label: 'Captain', value: ride.driver?.name ?? 'Vybe Captain'),
-                _ReceiptRow(
-                    label: 'Car Reg', value: ride.driver?.carNumber ?? 'KA-01-MJ-4829'),
-                _ReceiptRow(
-                    label: 'Distance', value: '${ride.distanceKm.toStringAsFixed(1)} km'),
-                _ReceiptRow(label: 'Date & Time', value: UiHelpers.formatDate(ride.createdAt)),
-                _ReceiptRow(label: 'Payment Method', value: 'Vybe Pay / UPI'),
-                Divider(color: isDark ? AppColors.darkDivider : AppColors.lightDivider),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Total Fare Paid',
-                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                    Text(
-                      UiHelpers.formatCurrency(ride.fare),
-                      style: AppTextStyles.priceLarge.copyWith(fontSize: 24),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
+              ),
             ),
-          ),
+          ],
         );
       },
     );
@@ -129,68 +171,70 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
         title: AppStrings.rideHistory,
         showThemeToggle: true,
       ),
-      body: BlocBuilder<HistoryBloc, HistoryState>(
-        builder: (context, state) {
-          if (state is HistoryLoading) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
-            );
-          }
+      body: SafeArea(
+        child: BlocBuilder<HistoryBloc, HistoryState>(
+          builder: (context, state) {
+            if (state is HistoryLoading) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              );
+            }
 
-          if (state is HistoryError) {
-            return Center(
-              child: Text(
-                state.message,
-                style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.error),
-              ),
-            );
-          }
-
-          if (state is HistoryLoaded) {
-            if (state.rides.isEmpty) {
+            if (state is HistoryError) {
               return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.history_toggle_off_rounded,
-                      size: 64,
-                      color: isDark
-                          ? AppColors.darkTextMuted.withValues(alpha: 0.5)
-                          : AppColors.lightTextMuted.withValues(alpha: 0.5),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      AppStrings.noRidesYet,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ],
+                child: Text(
+                  state.message,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.error),
                 ),
               );
             }
 
-            return RefreshIndicator(
-              color: AppColors.primary,
-              backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-              onRefresh: () async {
-                context.read<HistoryBloc>().add(LoadHistoryEvent());
-              },
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                itemCount: state.rides.length,
-                itemBuilder: (context, index) {
-                  final ride = state.rides[index];
-                  return RideHistoryCard(
-                    ride: ride,
-                    onTap: () => _showRideReceipt(context, ride),
-                  );
-                },
-              ),
-            );
-          }
+            if (state is HistoryLoaded) {
+              if (state.rides.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.history_toggle_off_rounded,
+                        size: 64,
+                        color: isDark
+                            ? AppColors.darkTextMuted.withValues(alpha: 0.5)
+                            : AppColors.lightTextMuted.withValues(alpha: 0.5),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        AppStrings.noRidesYet,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                );
+              }
 
-          return const SizedBox.shrink();
-        },
+              return RefreshIndicator(
+                color: AppColors.primary,
+                backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+                onRefresh: () async {
+                  context.read<HistoryBloc>().add(LoadHistoryEvent());
+                },
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  itemCount: state.rides.length,
+                  itemBuilder: (context, index) {
+                    final ride = state.rides[index];
+                    return RideHistoryCard(
+                      ride: ride,
+                      onTap: () => _showRideReceipt(context, ride),
+                    );
+                  },
+                ),
+              );
+            }
+
+            return const SizedBox.shrink();
+          },
+        ),
       ),
     );
   }
@@ -206,15 +250,21 @@ class _ReceiptRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 3.5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: theme.textTheme.bodyMedium),
+          Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontSize: 12,
+            ),
+          ),
           Text(
             value,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w700,
+              fontSize: 12,
             ),
           ),
         ],

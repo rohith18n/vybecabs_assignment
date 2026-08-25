@@ -53,12 +53,12 @@ class _TripCompletedScreenState extends State<TripCompletedScreen> {
           child: Scaffold(
             backgroundColor: theme.scaffoldBackgroundColor,
             body: SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                child: Column(
-                  children: [
-                    // Top Bar with Theme Toggle
-                    Row(
+              child: Column(
+                children: [
+                  // Top Bar with Theme Toggle
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
@@ -68,226 +68,239 @@ class _TripCompletedScreenState extends State<TripCompletedScreen> {
                         const ThemeToggleButton(isCompact: true),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                  ),
 
-                    // Success Glow Badge
-                    Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.success.withValues(alpha: 0.15),
-                        border: Border.all(color: AppColors.success, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.success.withValues(alpha: 0.25),
-                            blurRadius: 20,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.check_circle_rounded,
-                          size: 44,
-                          color: AppColors.success,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    Text(
-                      AppStrings.tripCompleted,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Hope you enjoyed your electric ride with Vybe!',
-                      style: theme.textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Fare Card
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-                            blurRadius: 12,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
+                  // Scrollable Receipt Content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                       child: Column(
                         children: [
-                          Text('Total Fare Paid', style: theme.textTheme.bodyMedium),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
+                          // Success Glow Badge
+                          Container(
+                            width: 68,
+                            height: 68,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.success.withValues(alpha: 0.15),
+                              border: Border.all(color: AppColors.success, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.success.withValues(alpha: 0.25),
+                                  blurRadius: 20,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.check_circle_rounded,
+                                size: 40,
+                                color: AppColors.success,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+
                           Text(
-                            UiHelpers.formatCurrency(ride.fare),
-                            style: AppTextStyles.priceLarge.copyWith(fontSize: 32),
+                            AppStrings.tripCompleted,
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Paid via Vybe Pay • Auto-Settled',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            'Hope you enjoyed your electric ride with Vybe!',
+                            style: theme.textTheme.bodyMedium,
+                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 16),
-                          Divider(
-                            height: 1,
-                            color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
-                          ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 20),
 
-                          // Route summary
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Column(
-                                children: [
-                                  const Icon(Icons.circle, color: AppColors.success, size: 10),
-                                  Container(
-                                    width: 2,
-                                    height: 26,
-                                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                                  ),
-                                  const Icon(Icons.location_on_rounded,
-                                      color: AppColors.error, size: 14),
-                                ],
+                          // Fare Card
+                          Container(
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                Text('Total Fare Paid', style: theme.textTheme.bodyMedium),
+                                const SizedBox(height: 4),
+                                Text(
+                                  UiHelpers.formatCurrency(ride.fare),
+                                  style: AppTextStyles.priceLarge.copyWith(fontSize: 30),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Paid via Vybe Pay • Auto-Settled',
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                Divider(
+                                  height: 1,
+                                  color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                                ),
+                                const SizedBox(height: 14),
+
+                                // Route summary
+                                Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      ride.pickup.title,
-                                      style: theme.textTheme.bodyMedium?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                    Column(
+                                      children: [
+                                        const Icon(Icons.circle, color: AppColors.success, size: 10),
+                                        Container(
+                                          width: 2,
+                                          height: 26,
+                                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                                        ),
+                                        const Icon(Icons.location_on_rounded,
+                                            color: AppColors.error, size: 14),
+                                      ],
                                     ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      ride.destination.title,
-                                      style: theme.textTheme.bodyMedium?.copyWith(
-                                        fontWeight: FontWeight.w600,
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            ride.pickup.title,
+                                            style: theme.textTheme.bodyMedium?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          Text(
+                                            ride.destination.title,
+                                            style: theme.textTheme.bodyMedium?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                          const SizedBox(height: 16),
+
+                          // Rating & Driver Card
+                          if (driver != null) ...[
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'How was your captain, ${driver.name}?',
+                                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                                  ),
+                                  const SizedBox(height: 10),
+
+                                  // Interactive Star Rating
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: List.generate(5, (index) {
+                                      final starValue = index + 1;
+                                      return IconButton(
+                                        icon: Icon(
+                                          starValue <= _selectedRating
+                                              ? Icons.star_rounded
+                                              : Icons.star_border_rounded,
+                                          color: const Color(0xFFFFB800),
+                                          size: 34,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _selectedRating = starValue;
+                                          });
+                                        },
+                                      );
+                                    }),
+                                  ),
+                                  const SizedBox(height: 10),
+
+                                  // Tip Selector Chips
+                                  Text('Add a Captain Tip (Optional)', style: theme.textTheme.bodySmall),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [20, 30, 50, 100].map((tip) {
+                                      final isSelected = _selectedTip == tip;
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                        child: ChoiceChip(
+                                          label: Text('₹$tip'),
+                                          selected: isSelected,
+                                          selectedColor: AppColors.primary,
+                                          backgroundColor: isDark ? AppColors.darkCardElevated : AppColors.lightChip,
+                                          labelStyle: TextStyle(
+                                            color: isSelected
+                                                ? Colors.white
+                                                : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                          side: BorderSide(
+                                            color: isSelected
+                                                ? AppColors.primary
+                                                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                                          ),
+                                          onSelected: (selected) {
+                                            setState(() {
+                                              _selectedTip = selected ? tip : null;
+                                            });
+                                          },
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 12),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                  ),
 
-                    // Rating & Driver Card
-                    if (driver != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-                              blurRadius: 12,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              'How was your captain, ${driver.name}?',
-                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-                            ),
-                            const SizedBox(height: 12),
-
-                            // Interactive Star Rating
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(5, (index) {
-                                final starValue = index + 1;
-                                return IconButton(
-                                  icon: Icon(
-                                    starValue <= _selectedRating
-                                        ? Icons.star_rounded
-                                        : Icons.star_border_rounded,
-                                    color: const Color(0xFFFFB800),
-                                    size: 36,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _selectedRating = starValue;
-                                    });
-                                  },
-                                );
-                              }),
-                            ),
-                            const SizedBox(height: 12),
-
-                            // Tip Selector Chips
-                            Text('Add a Captain Tip (Optional)', style: theme.textTheme.bodySmall),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [20, 30, 50, 100].map((tip) {
-                                final isSelected = _selectedTip == tip;
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                  child: ChoiceChip(
-                                    label: Text('₹$tip'),
-                                    selected: isSelected,
-                                    selectedColor: AppColors.primary,
-                                    backgroundColor: isDark ? AppColors.darkCardElevated : AppColors.lightChip,
-                                    labelStyle: TextStyle(
-                                      color: isSelected
-                                          ? Colors.white
-                                          : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                    side: BorderSide(
-                                      color: isSelected
-                                          ? AppColors.primary
-                                          : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
-                                    ),
-                                    onSelected: (selected) {
-                                      setState(() {
-                                        _selectedTip = selected ? tip : null;
-                                      });
-                                    },
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 24),
-
-                    // Back to Home Button
-                    CustomButton(
+                  // Sticky Bottom Action Button within SafeArea
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                    child: CustomButton(
                       text: AppStrings.done,
-                      icon: Icons.home_rounded,
+                      height: 50.0,
                       onPressed: () {
                         // Add completed ride to history bloc
                         context.read<HistoryBloc>().add(AddCompletedRideEvent(ride));
@@ -301,9 +314,8 @@ class _TripCompletedScreenState extends State<TripCompletedScreen> {
                         context.go(RoutePaths.home);
                       },
                     ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

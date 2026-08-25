@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Primary Brand - Vybe Coral/Orange
-  static const Color primary = Color(0xFFFF4E27); // Authentic Vybe Flame Orange
-  static const Color primaryLight = Color(0xFFFF7A45);
-  static const Color primaryDark = Color(0xFFD93812);
+  // Primary Brand - Vybe Coral/Orange (Refined & Toned-down Brightness)
+  static const Color primary = Color(0xFFE5532B);
+  static const Color primaryLight = Color(0xFFEA6E46);
+  static const Color primaryDark = Color(0xFFC43A14);
 
   // Secondary & Accents
   static const Color black = Color(0xFF0D0F12);
   static const Color darkPill = Color(0xFF1E1F24);
   static const Color secondary = Color(0xFF00E5FF); // Electric Cyan
-  static const Color accent = Color(0xFFFF4E27);
+  static const Color accent = Color(0xFFE5532B);
   static const Color whatsapp = Color(0xFF25D366);
 
   // Status & Feedback
@@ -57,21 +57,21 @@ class AppColors {
   static const Color textMuted = darkTextMuted;
 
   // Map elements
-  static const Color polylinePickup = Color(0xFFFF4E27);
+  static const Color polylinePickup = Color(0xFFE5532B);
   static const Color polylineTrip = Color(0xFF0D0F12);
   static const Color polylineTripDark = Color(0xFF00E5FF);
   static const Color markerPickup = Color(0xFF10B981);
-  static const Color markerDrop = Color(0xFFFF4E27);
+  static const Color markerDrop = Color(0xFFE5532B);
 
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFFFF5722), Color(0xFFFF3D00)],
+    colors: [Color(0xFFE5532B), Color(0xFFD64218)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient vybeFlameGradient = LinearGradient(
-    colors: [Color(0xFFFF6A3D), Color(0xFFFF4E27), Color(0xFFE03810)],
+    colors: [Color(0xFFEA6E46), Color(0xFFE5532B), Color(0xFFC43A14)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

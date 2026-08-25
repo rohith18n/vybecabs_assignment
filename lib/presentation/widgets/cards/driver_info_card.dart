@@ -11,7 +11,10 @@ class DriverInfoCard extends StatelessWidget {
   final String statusTitle;
   final String statusSubtitle;
   final int etaMinutes;
+  final int? etaSeconds;
   final bool isArrived;
+  final bool isEnRoute;
+  final bool isTripFinished;
   final VoidCallback? onStartTrip;
 
   const DriverInfoCard({
@@ -21,9 +24,22 @@ class DriverInfoCard extends StatelessWidget {
     required this.statusTitle,
     required this.statusSubtitle,
     required this.etaMinutes,
+    this.etaSeconds,
     this.isArrived = false,
+    this.isEnRoute = false,
+    this.isTripFinished = false,
     this.onStartTrip,
   });
+
+  String _formatEta() {
+    if (isArrived) return 'HERE';
+    if (etaSeconds != null) {
+      final mins = etaSeconds! ~/ 60;
+      final secs = etaSeconds! % 60;
+      return '$mins:${secs.toString().padLeft(2, '0')}';
+    }
+    return '$etaMinutes MIN';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,9 +116,9 @@ class DriverInfoCard extends StatelessWidget {
                     ),
                   ),
 
-                  // ETA / Status Badge
+                  // ETA / Status Badge (Timer formatted like mm:ss)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: isArrived
                           ? AppColors.success.withValues(alpha: 0.12)
@@ -117,7 +133,7 @@ class DriverInfoCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          isArrived ? 'HERE' : '$etaMinutes MIN',
+                          _formatEta(),
                           style: TextStyle(
                             color: isArrived ? AppColors.success : AppColors.primary,
                             fontWeight: FontWeight.w800,
@@ -152,8 +168,8 @@ class DriverInfoCard extends StatelessWidget {
                   Stack(
                     children: [
                       Container(
-                        width: 54,
-                        height: 54,
+                        width: 50,
+                        height: 50,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: isDark ? AppColors.darkCardElevated : AppColors.lightChip,
@@ -162,7 +178,7 @@ class DriverInfoCard extends StatelessWidget {
                         child: Center(
                           child: Icon(
                             Icons.person_rounded,
-                            size: 32,
+                            size: 30,
                             color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                           ),
                         ),
@@ -176,40 +192,44 @@ class DriverInfoCard extends StatelessWidget {
                             shape: BoxShape.circle,
                             color: AppColors.primary,
                           ),
-                          child: const Icon(Icons.shield_rounded, size: 12, color: Colors.white),
+                          child: const Icon(Icons.shield_rounded, size: 11, color: Colors.white),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: 12),
 
-                  // Driver Name & Rating
+                  // Driver Name & Rating (Non-truncating compact layout)
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           driver.name,
-                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.5,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 3),
+                        const SizedBox(height: 2),
                         Row(
                           children: [
-                            const Icon(Icons.star_rounded, color: Color(0xFFFFB800), size: 16),
-                            const SizedBox(width: 4),
+                            const Icon(Icons.star_rounded, color: Color(0xFFFFB800), size: 15),
+                            const SizedBox(width: 3),
                             Text(
                               '${driver.rating}',
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.w700,
+                                fontSize: 12.5,
                               ),
                             ),
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                '• ${driver.totalTrips}+ trips',
-                                style: theme.textTheme.bodySmall,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                            const SizedBox(width: 4),
+                            Text(
+                              '(${driver.totalTrips}+ trips)',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                fontSize: 11,
                               ),
                             ),
                           ],
@@ -220,7 +240,7 @@ class DriverInfoCard extends StatelessWidget {
 
                   // Car Registration Number Plate Badge
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                     decoration: BoxDecoration(
                       color: isDark ? AppColors.darkCard : AppColors.lightChip,
                       borderRadius: BorderRadius.circular(8),
@@ -234,16 +254,16 @@ class DriverInfoCard extends StatelessWidget {
                         Text(
                           driver.carNumber,
                           style: TextStyle(
-                            letterSpacing: 1.0,
+                            letterSpacing: 0.8,
                             fontWeight: FontWeight.w800,
-                            fontSize: 13,
+                            fontSize: 12.5,
                             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                           ),
                         ),
                         Text(
                           driver.carModel,
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 9.5,
                             color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                           ),
                           maxLines: 1,
@@ -301,7 +321,7 @@ class DriverInfoCard extends StatelessWidget {
 
               const SizedBox(height: 14),
 
-              // Action Buttons: Call, Message, SOS or Start Trip
+              // Action Buttons: Start Trip, En-Route Safety/Share, Call/Message, or Destination Arrival Info
               if (isArrived && onStartTrip != null) ...[
                 ElevatedButton(
                   onPressed: onStartTrip,
@@ -317,7 +337,7 @@ class DriverInfoCard extends StatelessWidget {
                       const Icon(Icons.play_arrow_rounded, color: Colors.white),
                       const SizedBox(width: 8),
                       Text(
-                        'Start Trip to Destination',
+                        'Boarded Cab • Start Trip',
                         style: AppTextStyles.labelLarge.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
@@ -325,6 +345,73 @@ class DriverInfoCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                ),
+              ] else if (isTripFinished) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Reached Destination • Concluding Trip',
+                      style: TextStyle(
+                        color: AppColors.success,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ),
+              ] else if (isEnRoute) ...[
+                // En Route to destination: No Call/Message buttons (Passenger is inside the cab)
+                Row(
+                  children: [
+                    Expanded(
+                      child: _ActionButton(
+                        icon: Icons.share_location_rounded,
+                        label: 'Share Trip',
+                        color: AppColors.primary,
+                        onTap: () {
+                          UiHelpers.showSnackBar(
+                            context,
+                            message: 'Live tracking link shared via WhatsApp / SMS',
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _ActionButton(
+                        icon: Icons.shield_rounded,
+                        label: 'Safety Shield',
+                        color: AppColors.success,
+                        onTap: () {
+                          UiHelpers.showSnackBar(
+                            context,
+                            message: 'Vybe Ride Shield: 24/7 GPS Tracking & Audio Monitored',
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _ActionButton(
+                        icon: Icons.emergency_rounded,
+                        label: 'SOS Alert',
+                        color: AppColors.error,
+                        onTap: () {
+                          UiHelpers.showSnackBar(
+                            context,
+                            message: 'SOS triggered: Emergency contacts & helpline alerted',
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ] else ...[
                 Row(

@@ -60,6 +60,7 @@ class LiveTrackingScreen extends StatelessWidget {
             statusTitle: AppStrings.driverOnTheWay,
             statusSubtitle: 'Driver is reaching your pickup location',
             etaMinutes: state.etaMinutes,
+            etaSeconds: state.etaSeconds,
           );
         } else if (state is DriverArrivedState) {
           pickup = state.pickupLocation;
@@ -70,7 +71,7 @@ class LiveTrackingScreen extends StatelessWidget {
             driver: state.driver,
             ride: state.ride,
             statusTitle: AppStrings.driverArrived,
-            statusSubtitle: AppStrings.driverArrivedDesc,
+            statusSubtitle: 'Captain has arrived • Share PIN with Captain',
             etaMinutes: 0,
             isArrived: true,
             onStartTrip: () {
@@ -85,12 +86,19 @@ class LiveTrackingScreen extends StatelessWidget {
           polyline = state.remainingPolyline;
           polylineColor = AppColors.primary;
 
+          final isNearDrop = state.progressPercent >= 0.96;
+
           bottomCard = DriverInfoCard(
             driver: state.driver,
             ride: state.ride,
-            statusTitle: AppStrings.tripInProgress,
-            statusSubtitle: '${(state.progressPercent * 100).toInt()}% of route covered',
+            statusTitle: isNearDrop ? 'Arriving at Destination' : AppStrings.tripInProgress,
+            statusSubtitle: isNearDrop
+                ? 'Preparing dropoff & receipt'
+                : '${(state.progressPercent * 100).toInt()}% of route covered',
             etaMinutes: state.etaMinutes,
+            etaSeconds: state.etaSeconds,
+            isEnRoute: true,
+            isTripFinished: isNearDrop,
           );
         }
 

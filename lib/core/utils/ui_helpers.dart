@@ -69,7 +69,7 @@ class UiHelpers {
   /// Creates a custom high-res Car icon bitmap for Google Maps marker
   static Future<BitmapDescriptor> createCarMarkerIcon({
     Color color = AppColors.primary,
-    double size = 96.0,
+    double size = 56.0,
   }) async {
     final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
@@ -77,22 +77,22 @@ class UiHelpers {
 
     // Glowing outer circle
     final Paint glowPaint = Paint()
-      ..color = color.withValues(alpha: 0.35)
+      ..color = color.withValues(alpha: 0.30)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(Offset(radius, radius), radius, glowPaint);
 
     // Dark base circle
     final Paint basePaint = Paint()
-      ..color = AppColors.background
+      ..color = AppColors.black
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(radius, radius), radius * 0.8, basePaint);
+    canvas.drawCircle(Offset(radius, radius), radius * 0.78, basePaint);
 
     // Border ring
     final Paint ringPaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4;
-    canvas.drawCircle(Offset(radius, radius), radius * 0.8, ringPaint);
+      ..strokeWidth = 2.2;
+    canvas.drawCircle(Offset(radius, radius), radius * 0.78, ringPaint);
 
     // Car icon in the center
     final TextPainter textPainter = TextPainter(textDirection: ui.TextDirection.ltr);
@@ -123,7 +123,7 @@ class UiHelpers {
   static Future<BitmapDescriptor> createPinMarkerIcon({
     required Color color,
     required IconData iconData,
-    double size = 80.0,
+    double size = 46.0,
   }) async {
     final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
@@ -131,7 +131,7 @@ class UiHelpers {
 
     // Outer glow
     final Paint glowPaint = Paint()
-      ..color = color.withValues(alpha: 0.3)
+      ..color = color.withValues(alpha: 0.30)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(Offset(radius, radius), radius, glowPaint);
 
@@ -139,17 +139,24 @@ class UiHelpers {
     final Paint fillPaint = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(radius, radius), radius * 0.72, fillPaint);
+    canvas.drawCircle(Offset(radius, radius), radius * 0.76, fillPaint);
 
-    // Icon text
+    // Crisp white border
+    final Paint borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+    canvas.drawCircle(Offset(radius, radius), radius * 0.76, borderPaint);
+
+    // Icon text in crisp white
     final TextPainter textPainter = TextPainter(textDirection: ui.TextDirection.ltr);
     textPainter.text = TextSpan(
       text: String.fromCharCode(iconData.codePoint),
       style: TextStyle(
-        fontSize: size * 0.38,
+        fontSize: size * 0.42,
         fontFamily: iconData.fontFamily,
         package: iconData.fontPackage,
-        color: Colors.black,
+        color: Colors.white,
       ),
     );
     textPainter.layout();

@@ -23,6 +23,7 @@ class DriverApproachingState extends TrackingState {
   final List<LatLng> fullPolyline;
   final List<LatLng> remainingPolyline;
   final int etaMinutes;
+  final int etaSeconds;
 
   const DriverApproachingState({
     required this.ride,
@@ -32,6 +33,7 @@ class DriverApproachingState extends TrackingState {
     required this.fullPolyline,
     required this.remainingPolyline,
     required this.etaMinutes,
+    this.etaSeconds = 117,
   });
 
   @override
@@ -43,6 +45,7 @@ class DriverApproachingState extends TrackingState {
         fullPolyline,
         remainingPolyline,
         etaMinutes,
+        etaSeconds,
       ];
 }
 
@@ -71,6 +74,7 @@ class TripInProgressState extends TrackingState {
   final List<LatLng> fullPolyline;
   final List<LatLng> remainingPolyline;
   final int etaMinutes;
+  final int etaSeconds;
   final double progressPercent; // 0.0 to 1.0
 
   const TripInProgressState({
@@ -81,6 +85,7 @@ class TripInProgressState extends TrackingState {
     required this.fullPolyline,
     required this.remainingPolyline,
     required this.etaMinutes,
+    this.etaSeconds = 342,
     required this.progressPercent,
   });
 
@@ -93,6 +98,7 @@ class TripInProgressState extends TrackingState {
         fullPolyline,
         remainingPolyline,
         etaMinutes,
+        etaSeconds,
         progressPercent,
       ];
 }

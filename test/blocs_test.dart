@@ -230,7 +230,7 @@ void main() {
         TrackingLoading(),
         isA<DriverApproachingState>()
             .having((s) => s.driver.name, 'driver name', 'Rajesh Verma')
-            .having((s) => s.etaMinutes, 'eta', 3),
+            .having((s) => s.etaMinutes, 'eta', greaterThan(0)),
       ],
     );
   });

@@ -36,28 +36,59 @@ class CustomMapView extends StatefulWidget {
   State<CustomMapView> createState() => _CustomMapViewState();
 }
 
-class _CustomMapViewState extends State<CustomMapView> {
+class _CustomMapViewState extends State<CustomMapView> with SingleTickerProviderStateMixin {
   GoogleMapController? _mapController;
   BitmapDescriptor? _carIcon;
   BitmapDescriptor? _pickupIcon;
   BitmapDescriptor? _dropIcon;
 
+  late AnimationController _auraController;
+  late Animation<double> _auraRadiusAnimation;
+  late Animation<double> _auraOpacityAnimation;
+
   @override
   void initState() {
     super.initState();
+    _auraController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+
+    _auraRadiusAnimation = Tween<double>(begin: 20.0, end: 48.0).animate(
+      CurvedAnimation(parent: _auraController, curve: Curves.easeInOut),
+    );
+
+    _auraOpacityAnimation = Tween<double>(begin: 0.28, end: 0.08).animate(
+      CurvedAnimation(parent: _auraController, curve: Curves.easeInOut),
+    );
+
+    _auraController.addListener(() {
+      if (mounted && widget.carLocation != null) {
+        setState(() {});
+      }
+    });
+
     _loadCustomMarkers();
+  }
+
+  @override
+  void dispose() {
+    _auraController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadCustomMarkers() async {
     try {
-      final car = await UiHelpers.createCarMarkerIcon(color: AppColors.primary, size: 90);
+      final car = await UiHelpers.createCarMarkerIcon(color: AppColors.primary, size: 56);
       final pickup = await UiHelpers.createPinMarkerIcon(
         color: AppColors.success,
-        iconData: Icons.person_pin_circle_rounded,
+        iconData: Icons.my_location_rounded,
+        size: 46,
       );
       final drop = await UiHelpers.createPinMarkerIcon(
-        color: AppColors.error,
-        iconData: Icons.location_on_rounded,
+        color: AppColors.primary,
+        iconData: Icons.place_rounded,
+        size: 46,
       );
 
       if (mounted) {
@@ -88,6 +119,37 @@ class _CustomMapViewState extends State<CustomMapView> {
   Widget build(BuildContext context) {
     final Set<Marker> markers = {};
     final Set<Polyline> polylines = {};
+    final Set<Circle> circles = {};
+
+    // Bouncing animated car aura
+    if (widget.carLocation != null) {
+      circles.add(
+        Circle(
+          circleId: const CircleId('car_bouncing_aura'),
+          center: widget.carLocation!,
+          radius: _auraRadiusAnimation.value,
+          fillColor: AppColors.primary.withValues(alpha: _auraOpacityAnimation.value),
+          strokeColor: AppColors.primary.withValues(alpha: _auraOpacityAnimation.value * 1.5),
+          strokeWidth: 1,
+          zIndex: 4,
+        ),
+      );
+    }
+
+    // Pickup aura
+    if (widget.pickupLocation != null) {
+      circles.add(
+        Circle(
+          circleId: const CircleId('pickup_aura'),
+          center: widget.pickupLocation!,
+          radius: 18.0,
+          fillColor: AppColors.success.withValues(alpha: 0.12),
+          strokeColor: AppColors.success.withValues(alpha: 0.3),
+          strokeWidth: 1,
+          zIndex: 3,
+        ),
+      );
+    }
 
     // Pickup Marker
     if (widget.pickupLocation != null) {
@@ -126,7 +188,7 @@ class _CustomMapViewState extends State<CustomMapView> {
           infoWindow: const InfoWindow(title: 'Vybe Captain'),
           anchor: const Offset(0.5, 0.5),
           flat: true,
-          zIndexInt: 10,
+          zIndex: 10,
         ),
       );
     }
@@ -162,6 +224,7 @@ class _CustomMapViewState extends State<CustomMapView> {
           padding: widget.padding,
           markers: markers,
           polylines: polylines,
+          circles: circles,
           myLocationEnabled: true,
           myLocationButtonEnabled: false,
           compassEnabled: true,
@@ -169,20 +232,22 @@ class _CustomMapViewState extends State<CustomMapView> {
           mapToolbarEnabled: false,
         ),
 
-        // My Location Button (floating on the right, above bottom sheet/card)
+        // My Location Button (floating on the top-right, directly below the profile button)
         if (widget.showMyLocationButton)
           Positioned(
             right: 16,
-            bottom: widget.padding.bottom > 0 ? widget.padding.bottom + 12 : 80,
+            top: MediaQuery.of(context).padding.top + 62,
             child: FloatingActionButton.small(
               heroTag: 'my_loc_btn',
-              backgroundColor: isDark ? AppColors.darkCardElevated : AppColors.lightCard,
+              backgroundColor: isDark
+                  ? AppColors.darkSurface.withValues(alpha: 0.92)
+                  : AppColors.lightSurface.withValues(alpha: 0.95),
               foregroundColor: AppColors.primary,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
               ),
-              elevation: 4,
+              elevation: 2,
               onPressed: () {
                 if (widget.onMyLocationPressed != null) {
                   widget.onMyLocationPressed!();
@@ -197,7 +262,7 @@ class _CustomMapViewState extends State<CustomMapView> {
                   );
                 }
               },
-              child: const Icon(Icons.my_location_rounded, size: 20),
+              child: const Icon(Icons.near_me_rounded, size: 20),
             ),
           ),
       ],

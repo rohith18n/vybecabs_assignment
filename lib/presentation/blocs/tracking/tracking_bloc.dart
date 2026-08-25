@@ -66,7 +66,8 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       bearing: initialBearing,
       fullPolyline: _currentPath,
       remainingPolyline: _currentPath,
-      etaMinutes: 3,
+      etaMinutes: 2,
+      etaSeconds: 117,
     ));
 
     // Start animated waypoint ticks every 1.4s
@@ -106,7 +107,10 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       final int totalPoints = _currentPath.length;
       final double fractionRemaining =
           (totalPoints - event.remainingWaypointIndex) / totalPoints;
-      final int remainingEta = (fractionRemaining * 3).ceil().clamp(1, 3);
+      final int totalSeconds = 120;
+      final int remainingSeconds =
+          (fractionRemaining * totalSeconds).round().clamp(5, totalSeconds);
+      final int remainingEta = (remainingSeconds / 60).ceil().clamp(1, 3);
 
       emit(DriverApproachingState(
         ride: current.ride,
@@ -116,6 +120,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         fullPolyline: current.fullPolyline,
         remainingPolyline: remaining,
         etaMinutes: remainingEta,
+        etaSeconds: remainingSeconds,
       ));
     }
   }
@@ -135,13 +140,6 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       driver: _activeDriver!,
       pickupLocation: arrivedRide.pickup.latLng,
     ));
-
-    // Auto-advance to Trip Start after 4 seconds if user doesn't press "Start Ride" manually
-    Timer(const Duration(seconds: 4), () {
-      if (state is DriverArrivedState) {
-        add(StartTripEvent());
-      }
-    });
   }
 
   Future<void> _onStartTrip(
@@ -173,7 +171,8 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       bearing: initialBearing,
       fullPolyline: _currentPath,
       remainingPolyline: _currentPath,
-      etaMinutes: 8,
+      etaMinutes: 6,
+      etaSeconds: 342,
       progressPercent: 0.0,
     ));
 
@@ -212,8 +211,10 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       final current = state as TripInProgressState;
       final remaining = _currentPath.sublist(event.remainingWaypointIndex);
       final double progress = event.remainingWaypointIndex / (_currentPath.length - 1);
-      final int totalEtaMinutes = 8;
-      final int remainingEta = ((1.0 - progress) * totalEtaMinutes).ceil().clamp(1, 8);
+      final int totalTripSeconds = 360;
+      final int remainingTripSeconds =
+          ((1.0 - progress) * totalTripSeconds).round().clamp(5, totalTripSeconds);
+      final int remainingEta = (remainingTripSeconds / 60).ceil().clamp(1, 6);
 
       emit(TripInProgressState(
         ride: current.ride,
@@ -223,6 +224,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         fullPolyline: current.fullPolyline,
         remainingPolyline: remaining,
         etaMinutes: remainingEta,
+        etaSeconds: remainingTripSeconds,
         progressPercent: progress,
       ));
     }
