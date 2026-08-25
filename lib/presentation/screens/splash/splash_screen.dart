@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/constants/app_assets.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/app_text_styles.dart';
@@ -102,24 +103,28 @@ class _SplashScreenState extends State<SplashScreen>
                           children: [
                             // Glowing Brand Flame Logo
                             Container(
-                              width: 104,
-                              height: 104,
+                              width: 110,
+                              height: 110,
                               decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: AppColors.vybeFlameGradient,
+                                borderRadius: BorderRadius.circular(28),
+                                border: Border.all(
+                                  color: AppColors.primary.withValues(alpha: 0.4),
+                                  width: 1.5,
+                                ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: AppColors.primary.withValues(alpha: isDark ? 0.5 : 0.35),
-                                    blurRadius: 30,
-                                    spreadRadius: 4,
+                                    blurRadius: 32,
+                                    spreadRadius: 2,
+                                    offset: const Offset(0, 4),
                                   ),
                                 ],
                               ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.electric_car_rounded,
-                                  size: 54,
-                                  color: Colors.white,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(26),
+                                child: Image.asset(
+                                  AppAssets.appIcon,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
                             ),

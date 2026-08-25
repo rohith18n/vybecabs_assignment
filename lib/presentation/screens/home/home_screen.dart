@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../core/constants/app_assets.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/app_text_styles.dart';
@@ -217,15 +218,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           Container(
                             width: 26,
                             height: 26,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: AppColors.vybeFlameGradient,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(7),
                             ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.electric_car_rounded,
-                                size: 14,
-                                color: Colors.white,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(7),
+                              child: Image.asset(
+                                AppAssets.appIcon,
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ),
