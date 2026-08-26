@@ -109,8 +109,9 @@ class LocalDummyDataSource {
     DriverModel(
       id: 'drv_01',
       name: 'Rajesh Verma',
-      photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-      carModel: 'Tata Nexon EV Max • Cyber White',
+      photoUrl:
+          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80',
+      carModel: 'Tata Nexon EV • White',
       carNumber: 'KA 01 MJ 4829',
       rating: 4.94,
       totalTrips: 3420,
@@ -121,8 +122,9 @@ class LocalDummyDataSource {
     DriverModel(
       id: 'drv_02',
       name: 'Vikramaditya Rao',
-      photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-      carModel: 'Hyundai Ioniq 5 • Gravity Gold',
+      photoUrl:
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
+      carModel: 'Hyundai Ioniq 5 • Gold',
       carNumber: 'KA 05 AA 7711',
       rating: 4.91,
       totalTrips: 2890,
@@ -133,8 +135,9 @@ class LocalDummyDataSource {
     DriverModel(
       id: 'drv_03',
       name: 'Anita Sharma',
-      photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
-      carModel: 'Skoda Slavia 1.5 • Carbon Steel',
+      photoUrl:
+          'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80',
+      carModel: 'Skoda Slavia • Grey',
       carNumber: 'KA 03 EX 9920',
       rating: 4.97,
       totalTrips: 4150,
@@ -307,7 +310,11 @@ class LocalDummyDataSource {
   }
 
   /// Generates a realistic curved / Manhattan-like waypoint path between start and end coordinates
-  static List<LatLng> generateSimulatedPath(LatLng start, LatLng end, {int waypointCount = 12}) {
+  static List<LatLng> generateSimulatedPath(
+    LatLng start,
+    LatLng end, {
+    int waypointCount = 12,
+  }) {
     final List<LatLng> path = [];
     path.add(start);
 
@@ -323,7 +330,8 @@ class LocalDummyDataSource {
       final double jitter = math.sin(progress * math.pi * 3) * 0.0008;
 
       final double lat = start.latitude + (latDiff * progress) + curveOffset;
-      final double lng = start.longitude + (lngDiff * progress) - (jitter * 0.5);
+      final double lng =
+          start.longitude + (lngDiff * progress) - (jitter * 0.5);
 
       path.add(LatLng(lat, lng));
     }
