@@ -60,4 +60,20 @@ class CompleteTripEvent extends TrackingEvent {
   List<Object?> get props => [rating];
 }
 
+class UpdateTripRatingEvent extends TrackingEvent {
+  final int rating;
+  const UpdateTripRatingEvent(this.rating);
+
+  @override
+  List<Object?> get props => [rating];
+}
+
+class UpdateTripTipEvent extends TrackingEvent {
+  final int? tip;
+  const UpdateTripTipEvent(this.tip);
+
+  @override
+  List<Object?> get props => [tip];
+}
+
 class ResetTrackingEvent extends TrackingEvent {}

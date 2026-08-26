@@ -17,16 +17,8 @@ import '../../widgets/cards/trip_completed_fare_card.dart';
 import '../../widgets/cards/trip_rating_section.dart';
 import '../../widgets/common/custom_button.dart';
 
-class TripCompletedScreen extends StatefulWidget {
+class TripCompletedScreen extends StatelessWidget {
   const TripCompletedScreen({super.key});
-
-  @override
-  State<TripCompletedScreen> createState() => _TripCompletedScreenState();
-}
-
-class _TripCompletedScreenState extends State<TripCompletedScreen> {
-  int _selectedRating = 5;
-  int? _selectedTip;
 
   void _doneAndGoHome(BuildContext context) {
     context.read<TrackingBloc>().add(ResetTrackingEvent());
@@ -50,8 +42,13 @@ class _TripCompletedScreenState extends State<TripCompletedScreen> {
           child: BlocBuilder<TrackingBloc, TrackingState>(
             builder: (context, state) {
               Ride? ride;
+              int selectedRating = 5;
+              int? selectedTip;
+
               if (state is TripCompletedState) {
                 ride = state.completedRide;
+                selectedRating = state.selectedRating;
+                selectedTip = state.selectedTip;
               } else if (state is DriverApproachingState) {
                 ride = state.ride;
               } else if (state is TripInProgressState) {
@@ -75,7 +72,8 @@ class _TripCompletedScreenState extends State<TripCompletedScreen> {
               }
 
               return SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -89,7 +87,8 @@ class _TripCompletedScreenState extends State<TripCompletedScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: AppColors.success.withValues(alpha: 0.12),
-                          border: Border.all(color: AppColors.success, width: 2),
+                          border:
+                              Border.all(color: AppColors.success, width: 2),
                         ),
                         child: const Center(
                           child: Icon(
@@ -121,16 +120,20 @@ class _TripCompletedScreenState extends State<TripCompletedScreen> {
                     TripCompletedFareCard(ride: ride),
                     const SizedBox(height: 16),
 
-                    // Driver Rating Section
+                    // Driver Rating Section (100% BLoC driven)
                     TripRatingSection(
                       driver: ride.driver,
-                      selectedRating: _selectedRating,
-                      selectedTip: _selectedTip,
+                      selectedRating: selectedRating,
+                      selectedTip: selectedTip,
                       onRatingChanged: (rating) {
-                        setState(() => _selectedRating = rating);
+                        context
+                            .read<TrackingBloc>()
+                            .add(UpdateTripRatingEvent(rating));
                       },
                       onTipChanged: (tip) {
-                        setState(() => _selectedTip = tip);
+                        context
+                            .read<TrackingBloc>()
+                            .add(UpdateTripTipEvent(tip));
                       },
                     ),
                     const SizedBox(height: 24),
@@ -140,10 +143,11 @@ class _TripCompletedScreenState extends State<TripCompletedScreen> {
                       text: 'Done • Back to Home',
                       icon: Icons.home_rounded,
                       onPressed: () {
-                        if (_selectedTip != null) {
+                        if (selectedTip != null) {
                           UiHelpers.showSnackBar(
                             context,
-                            message: 'Tip of ₹$_selectedTip added! Thank you.',
+                            message:
+                                'Tip of ₹$selectedTip added! Thank you.',
                           );
                         }
                         _doneAndGoHome(context);

@@ -5,6 +5,14 @@ import '../../../../core/constants/map_styles.dart';
 import '../../../../core/utils/ui_helpers.dart';
 import 'map_overlay_builder.dart';
 
+class MapMarkerIcons {
+  final BitmapDescriptor? car;
+  final BitmapDescriptor? pickup;
+  final BitmapDescriptor? drop;
+
+  const MapMarkerIcons({this.car, this.pickup, this.drop});
+}
+
 class CustomMapView extends StatefulWidget {
   final LatLng initialPosition;
   final double initialZoom;
@@ -44,9 +52,8 @@ class CustomMapView extends StatefulWidget {
 class _CustomMapViewState extends State<CustomMapView>
     with SingleTickerProviderStateMixin {
   GoogleMapController? _mapController;
-  BitmapDescriptor? _carIcon;
-  BitmapDescriptor? _pickupIcon;
-  BitmapDescriptor? _dropIcon;
+  final ValueNotifier<MapMarkerIcons> _iconsNotifier =
+      ValueNotifier(const MapMarkerIcons());
 
   late AnimationController _auraController;
   late Animation<double> _auraRadiusAnimation;
@@ -68,26 +75,23 @@ class _CustomMapViewState extends State<CustomMapView>
       CurvedAnimation(parent: _auraController, curve: Curves.easeInOut),
     );
 
-    _auraController.addListener(() {
-      if (mounted && widget.carLocation != null) {
-        setState(() {});
-      }
-    });
-
     _loadCustomMarkers();
   }
 
   @override
   void dispose() {
     _auraController.dispose();
+    _iconsNotifier.dispose();
     _mapController?.dispose();
     super.dispose();
   }
 
   Future<void> _loadCustomMarkers() async {
     try {
-      final car =
-          await UiHelpers.createCarMarkerIcon(color: AppColors.primary, size: 56);
+      final car = await UiHelpers.createCarMarkerIcon(
+        color: AppColors.primary,
+        size: 56,
+      );
       final pickup = await UiHelpers.createPinMarkerIcon(
         color: AppColors.success,
         iconData: Icons.my_location_rounded,
@@ -99,13 +103,11 @@ class _CustomMapViewState extends State<CustomMapView>
         size: 46,
       );
 
-      if (mounted) {
-        setState(() {
-          _carIcon = car;
-          _pickupIcon = pickup;
-          _dropIcon = drop;
-        });
-      }
+      _iconsNotifier.value = MapMarkerIcons(
+        car: car,
+        pickup: pickup,
+        drop: drop,
+      );
     } catch (_) {
       // Fallback to default markers
     }
@@ -128,46 +130,56 @@ class _CustomMapViewState extends State<CustomMapView>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final effectiveDrop = widget.dropLocation ?? widget.destinationLocation;
 
-    final circles = MapOverlayBuilder.buildCircles(
-      carLocation: widget.carLocation,
-      pickupLocation: widget.pickupLocation,
-      auraRadius: _auraRadiusAnimation.value,
-      auraOpacity: _auraOpacityAnimation.value,
-    );
+    return AnimatedBuilder(
+      animation: _auraController,
+      builder: (context, _) {
+        return ValueListenableBuilder<MapMarkerIcons>(
+          valueListenable: _iconsNotifier,
+          builder: (context, icons, _) {
+            final circles = MapOverlayBuilder.buildCircles(
+              carLocation: widget.carLocation,
+              pickupLocation: widget.pickupLocation,
+              auraRadius: _auraRadiusAnimation.value,
+              auraOpacity: _auraOpacityAnimation.value,
+            );
 
-    final markers = MapOverlayBuilder.buildMarkers(
-      pickupLocation: widget.pickupLocation,
-      dropLocation: effectiveDrop,
-      carLocation: widget.carLocation,
-      carBearing: widget.carBearing,
-      pickupIcon: _pickupIcon,
-      dropIcon: _dropIcon,
-      carIcon: _carIcon,
-    );
+            final markers = MapOverlayBuilder.buildMarkers(
+              pickupLocation: widget.pickupLocation,
+              dropLocation: effectiveDrop,
+              carLocation: widget.carLocation,
+              carBearing: widget.carBearing,
+              pickupIcon: icons.pickup,
+              dropIcon: icons.drop,
+              carIcon: icons.car,
+            );
 
-    final polylines = MapOverlayBuilder.buildPolylines(
-      polylineCoordinates: widget.polylineCoordinates,
-      polylineColor: widget.polylineColor,
-    );
+            final polylines = MapOverlayBuilder.buildPolylines(
+              polylineCoordinates: widget.polylineCoordinates,
+              polylineColor: widget.polylineColor,
+            );
 
-    return GoogleMap(
-      style: isDark ? MapStyles.darkMapStyle : MapStyles.lightMapStyle,
-      initialCameraPosition: CameraPosition(
-        target: widget.initialPosition,
-        zoom: widget.initialZoom,
-      ),
-      onMapCreated: (controller) {
-        _mapController = controller;
+            return GoogleMap(
+              style: isDark ? MapStyles.darkMapStyle : MapStyles.lightMapStyle,
+              initialCameraPosition: CameraPosition(
+                target: widget.initialPosition,
+                zoom: widget.initialZoom,
+              ),
+              onMapCreated: (controller) {
+                _mapController = controller;
+              },
+              markers: markers,
+              polylines: polylines,
+              circles: circles,
+              myLocationEnabled: false,
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              compassEnabled: false,
+              mapToolbarEnabled: false,
+              padding: widget.padding,
+            );
+          },
+        );
       },
-      markers: markers,
-      polylines: polylines,
-      circles: circles,
-      myLocationEnabled: false,
-      myLocationButtonEnabled: false,
-      zoomControlsEnabled: false,
-      compassEnabled: false,
-      mapToolbarEnabled: false,
-      padding: widget.padding,
     );
   }
 }

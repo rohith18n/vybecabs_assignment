@@ -26,4 +26,14 @@ class SelectPickupEvent extends LocationEvent {
   List<Object?> get props => [pickup];
 }
 
+class FilterHotspotsEvent extends LocationEvent {
+  final String? category;
+  final String? query;
+
+  const FilterHotspotsEvent({this.category, this.query});
+
+  @override
+  List<Object?> get props => [category, query];
+}
+
 class ClearDestinationEvent extends LocationEvent {}

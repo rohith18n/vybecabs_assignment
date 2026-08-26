@@ -36,12 +36,18 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  bool _obscureText = true;
+  late final ValueNotifier<bool> _obscureNotifier;
 
   @override
   void initState() {
     super.initState();
-    _obscureText = widget.isPassword;
+    _obscureNotifier = ValueNotifier<bool>(widget.isPassword);
+  }
+
+  @override
+  void dispose() {
+    _obscureNotifier.dispose();
+    super.dispose();
   }
 
   @override
@@ -56,56 +62,71 @@ class _CustomTextFieldState extends State<CustomTextField> {
           widget.label,
           style: theme.textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.w600,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            color:
+                isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),
         ),
         const SizedBox(height: 8),
-        TextFormField(
-          controller: widget.controller,
-          focusNode: widget.focusNode,
-          keyboardType: widget.keyboardType,
-          obscureText: widget.isPassword && _obscureText,
-          validator: widget.validator,
-          onChanged: widget.onChanged,
-          textInputAction: widget.textInputAction,
-          onEditingComplete: widget.onEditingComplete,
-          style: TextStyle(
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 15,
-          ),
-          cursorColor: AppColors.primary,
-          decoration: InputDecoration(
-            hintText: widget.hint,
-            errorText: widget.errorText,
-            errorMaxLines: 3,
-            hintStyle: TextStyle(
-              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-              fontSize: 14,
-            ),
-            filled: true,
-            fillColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-            prefixIcon: widget.prefixIcon != null
-                ? Icon(
-                    widget.prefixIcon,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                    size: 22,
-                  )
-                : null,
-            suffixIcon: widget.isPassword
-                ? IconButton(
-                    icon: Icon(
-                      _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                      size: 20,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    },
-                  )
-                : null,
-          ),
+        ValueListenableBuilder<bool>(
+          valueListenable: _obscureNotifier,
+          builder: (context, isObscured, _) {
+            return TextFormField(
+              controller: widget.controller,
+              focusNode: widget.focusNode,
+              keyboardType: widget.keyboardType,
+              obscureText: widget.isPassword && isObscured,
+              validator: widget.validator,
+              onChanged: widget.onChanged,
+              textInputAction: widget.textInputAction,
+              onEditingComplete: widget.onEditingComplete,
+              style: TextStyle(
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
+                fontSize: 15,
+              ),
+              cursorColor: AppColors.primary,
+              decoration: InputDecoration(
+                hintText: widget.hint,
+                errorText: widget.errorText,
+                errorMaxLines: 3,
+                hintStyle: TextStyle(
+                  color: isDark
+                      ? AppColors.darkTextMuted
+                      : AppColors.lightTextMuted,
+                  fontSize: 14,
+                ),
+                filled: true,
+                fillColor:
+                    isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                prefixIcon: widget.prefixIcon != null
+                    ? Icon(
+                        widget.prefixIcon,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                        size: 22,
+                      )
+                    : null,
+                suffixIcon: widget.isPassword
+                    ? IconButton(
+                        icon: Icon(
+                          isObscured
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          _obscureNotifier.value = !_obscureNotifier.value;
+                        },
+                      )
+                    : null,
+              ),
+            );
+          },
         ),
       ],
     );

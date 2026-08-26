@@ -17,21 +17,10 @@ import '../../widgets/home/home_top_bar.dart';
 import '../../widgets/home/home_where_to_card.dart';
 import '../../widgets/map/custom_map_view.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<LocationBloc>().add(LoadLocationAndHotspots());
-  }
-
-  void _showLocationPicker(List<LocationEntity> hotspots) {
+  void _showLocationPicker(BuildContext context, List<LocationEntity> hotspots) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -61,6 +50,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (context.read<LocationBloc>().state is LocationInitial) {
+      context.read<LocationBloc>().add(LoadLocationAndHotspots());
+    }
+
     return BlocListener<BookingBloc, BookingState>(
       listener: (context, bookingState) {
         if (bookingState is SearchingDriverState) {
@@ -152,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           },
                           onChangeDestination: () {
-                            _showLocationPicker(locState.hotspots);
+                            _showLocationPicker(context, locState.hotspots);
                           },
                           onClose: () {
                             context.read<BookingBloc>().add(
@@ -169,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         currentPickup: locState.currentPickup,
                         hotspots: locState.hotspots,
                         onTapSearch: () =>
-                            _showLocationPicker(locState.hotspots),
+                            _showLocationPicker(context, locState.hotspots),
                       );
                     },
                   );

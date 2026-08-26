@@ -10,19 +10,8 @@ import '../../widgets/bottom_sheets/ride_receipt_bottom_sheet.dart';
 import '../../widgets/cards/ride_history_card.dart';
 import '../../widgets/common/vybe_app_bar.dart';
 
-class RideHistoryScreen extends StatefulWidget {
+class RideHistoryScreen extends StatelessWidget {
   const RideHistoryScreen({super.key});
-
-  @override
-  State<RideHistoryScreen> createState() => _RideHistoryScreenState();
-}
-
-class _RideHistoryScreenState extends State<RideHistoryScreen> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<HistoryBloc>().add(LoadHistoryEvent());
-  }
 
   void _showRideReceipt(BuildContext context, Ride ride) {
     RideReceiptBottomSheet.show(context, ride);
@@ -30,6 +19,10 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (context.read<HistoryBloc>().state is HistoryInitial) {
+      context.read<HistoryBloc>().add(LoadHistoryEvent());
+    }
+
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 

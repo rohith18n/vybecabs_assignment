@@ -35,41 +35,46 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     on<StartTripEvent>(_onStartTrip);
     on<TripProgressTickEvent>(_onTripProgressTick);
     on<CompleteTripEvent>(_onCompleteTrip);
+    on<UpdateTripRatingEvent>((e, emit) {
+      if (state is TripCompletedState) {
+        emit((state as TripCompletedState).copyWith(selectedRating: e.rating));
+      }
+    });
+    on<UpdateTripTipEvent>((e, emit) {
+      if (state is TripCompletedState) {
+        emit((state as TripCompletedState).copyWith(selectedTip: () => e.tip));
+      }
+    });
     on<ResetTrackingEvent>(_onResetTracking);
   }
 
   void _startWaypointTicker({required bool isApproach}) {
     _movementTimer?.cancel();
-    _movementTimer =
-        Timer.periodic(const Duration(milliseconds: 1400), (timer) {
+    _movementTimer = Timer.periodic(const Duration(milliseconds: 1400), (t) {
       if (_currentIndex < _currentPath.length - 1) {
         _currentIndex++;
-        final currentPoint = _currentPath[_currentIndex];
-        final nextPoint = _currentIndex + 1 < _currentPath.length
+        final cur = _currentPath[_currentIndex];
+        final nxt = _currentIndex + 1 < _currentPath.length
             ? _currentPath[_currentIndex + 1]
-            : _currentPath[_currentIndex];
-        final bearing = GeoUtils.calculateBearing(currentPoint, nextPoint);
+            : cur;
+        final bearing = GeoUtils.calculateBearing(cur, nxt);
 
         if (isApproach) {
           add(DriverApproachTickEvent(
-            newLocation: currentPoint,
+            newLocation: cur,
             bearing: bearing,
             remainingWaypointIndex: _currentIndex,
           ));
         } else {
           add(TripProgressTickEvent(
-            newLocation: currentPoint,
+            newLocation: cur,
             bearing: bearing,
             remainingWaypointIndex: _currentIndex,
           ));
         }
       } else {
-        timer.cancel();
-        if (isApproach) {
-          add(DriverArrivedEvent());
-        } else {
-          add(const CompleteTripEvent());
-        }
+        t.cancel();
+        add(isApproach ? DriverArrivedEvent() : const CompleteTripEvent());
       }
     });
   }
@@ -80,15 +85,13 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   ) async {
     _movementTimer?.cancel();
     emit(TrackingLoading());
-
     _activeRide = event.ride;
     _activeDriver = event.ride.driver!;
 
     final driverStart =
         LatLng(_activeDriver!.latitude, _activeDriver!.longitude);
-    final pickupPoint = event.ride.pickup.latLng;
-
-    _currentPath = await _getPickupRouteUseCase(driverStart, pickupPoint);
+    _currentPath =
+        await _getPickupRouteUseCase(driverStart, event.ride.pickup.latLng);
     _currentIndex = 0;
 
     final initialLocation = _currentPath.first;
@@ -135,20 +138,16 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     }
   }
 
-  void _onDriverArrived(
-    DriverArrivedEvent event,
-    Emitter<TrackingState> emit,
-  ) {
+  void _onDriverArrived(DriverArrivedEvent event, Emitter<TrackingState> emit) {
     if (_activeRide == null || _activeDriver == null) return;
     _movementTimer?.cancel();
-
-    final arrivedRide = _activeRide!.copyWith(status: RideStatus.driverArrived);
-    _activeRide = arrivedRide;
+    final arrived = _activeRide!.copyWith(status: RideStatus.driverArrived);
+    _activeRide = arrived;
 
     emit(DriverArrivedState(
-      ride: arrivedRide,
+      ride: arrived,
       driver: _activeDriver!,
-      pickupLocation: arrivedRide.pickup.latLng,
+      pickupLocation: arrived.pickup.latLng,
     ));
   }
 
@@ -159,13 +158,13 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     if (_activeRide == null || _activeDriver == null) return;
     _movementTimer?.cancel();
 
-    final inProgressRide = _activeRide!.copyWith(status: RideStatus.inProgress);
-    _activeRide = inProgressRide;
+    final inProgress = _activeRide!.copyWith(status: RideStatus.inProgress);
+    _activeRide = inProgress;
 
-    final pickupPoint = inProgressRide.pickup.latLng;
-    final destinationPoint = inProgressRide.destination.latLng;
-
-    _currentPath = await _getTripRouteUseCase(pickupPoint, destinationPoint);
+    _currentPath = await _getTripRouteUseCase(
+      inProgress.pickup.latLng,
+      inProgress.destination.latLng,
+    );
     _currentIndex = 0;
 
     final initialLocation = _currentPath.first;
@@ -174,7 +173,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         : 0.0;
 
     emit(TripInProgressState(
-      ride: inProgressRide,
+      ride: inProgress,
       driver: _activeDriver!,
       carLocation: initialLocation,
       bearing: initialBearing,
@@ -221,13 +220,13 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     _movementTimer?.cancel();
     if (_activeRide == null) return;
 
-    final completedRide = _activeRide!.copyWith(
+    final completed = _activeRide!.copyWith(
       status: RideStatus.completed,
       userRating: event.rating ?? 5.0,
     );
 
-    await _saveCompletedRideUseCase(completedRide);
-    emit(TripCompletedState(completedRide));
+    await _saveCompletedRideUseCase(completed);
+    emit(TripCompletedState(completed));
   }
 
   void _onResetTracking(

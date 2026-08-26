@@ -106,9 +106,27 @@ class TripInProgressState extends TrackingState {
 /// Phase 4: Trip ended, show completion screen with receipt & rating
 class TripCompletedState extends TrackingState {
   final Ride completedRide;
+  final int selectedRating;
+  final int? selectedTip;
 
-  const TripCompletedState(this.completedRide);
+  const TripCompletedState(
+    this.completedRide, {
+    this.selectedRating = 5,
+    this.selectedTip,
+  });
+
+  TripCompletedState copyWith({
+    Ride? completedRide,
+    int? selectedRating,
+    int? Function()? selectedTip,
+  }) {
+    return TripCompletedState(
+      completedRide ?? this.completedRide,
+      selectedRating: selectedRating ?? this.selectedRating,
+      selectedTip: selectedTip != null ? selectedTip() : this.selectedTip,
+    );
+  }
 
   @override
-  List<Object?> get props => [completedRide];
+  List<Object?> get props => [completedRide, selectedRating, selectedTip];
 }

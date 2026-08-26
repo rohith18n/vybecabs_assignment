@@ -18,6 +18,7 @@ import '../../domain/usecases/ride/get_routes_usecase.dart';
 import '../../domain/usecases/ride/get_vehicle_types_usecase.dart';
 import '../../domain/usecases/ride/save_completed_ride_usecase.dart';
 import '../../presentation/blocs/auth/auth_bloc.dart';
+import '../../presentation/blocs/auth/auth_form_cubit.dart';
 import '../../presentation/blocs/booking/booking_bloc.dart';
 import '../../presentation/blocs/history/history_bloc.dart';
 import '../../presentation/blocs/location/location_bloc.dart';
@@ -89,6 +90,8 @@ Future<void> initServiceLocator() async {
       authRepository: sl<IAuthRepository>(),
     ),
   );
+
+  sl.registerFactory<AuthFormCubit>(() => AuthFormCubit());
 
   sl.registerFactory<LocationBloc>(
     () => LocationBloc(

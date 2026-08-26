@@ -12,57 +12,22 @@ import '../../blocs/auth/auth_event.dart';
 import '../../blocs/auth/auth_state.dart';
 import '../../widgets/common/theme_toggle_button.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _opacityAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    );
-
-    _scaleAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
-
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
-
-    _controller.forward();
-
-    // Trigger Auth verification
-    context.read<AuthBloc>().add(AppStarted());
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // Trigger auth verification if initial
+    if (context.read<AuthBloc>().state is AuthInitial) {
+      context.read<AuthBloc>().add(AppStarted());
+    }
+
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        // Wait 1.8 seconds for smooth splash experience
         Timer(const Duration(milliseconds: 1800), () {
-          if (!mounted) return;
           if (state is Authenticated) {
             context.go(RoutePaths.home);
           } else if (state is Unauthenticated || state is AuthFailureState) {
@@ -91,94 +56,102 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
               child: Center(
-                child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) {
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 0.0, end: 1.0),
+                  duration: const Duration(milliseconds: 1200),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, value, child) {
                     return Opacity(
-                      opacity: _opacityAnimation.value,
+                      opacity: value,
                       child: Transform.scale(
-                        scale: _scaleAnimation.value,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Glowing Brand Flame Logo
-                            Container(
-                              width: 110,
-                              height: 110,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(28),
-                                border: Border.all(
-                                  color: AppColors.primary.withValues(alpha: 0.4),
-                                  width: 1.5,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.primary.withValues(alpha: isDark ? 0.5 : 0.35),
-                                    blurRadius: 32,
-                                    spreadRadius: 2,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(26),
-                                child: Image.asset(
-                                  AppAssets.appIcon,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-
-                            // App Name
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Vybe',
-                                  style: AppTextStyles.h1.copyWith(
-                                    fontSize: 38,
-                                    fontWeight: FontWeight.w900,
-                                    color: isDark ? Colors.white : AppColors.black,
-                                  ),
-                                ),
-                                Text(
-                                  'Cabs',
-                                  style: AppTextStyles.h1.copyWith(
-                                    fontSize: 38,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-
-                            // Tagline
-                            Text(
-                              AppStrings.appTagline,
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                                letterSpacing: 1.2,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 48),
-
-                            // Loading spinner
-                            const SizedBox(
-                              width: 26,
-                              height: 26,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                              ),
-                            ),
-                          ],
-                        ),
+                        scale: 0.7 + (0.3 * value),
+                        child: child,
                       ),
                     );
                   },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Glowing Brand Flame Logo
+                      Container(
+                        width: 110,
+                        height: 110,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(28),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.4),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary
+                                  .withValues(alpha: isDark ? 0.5 : 0.35),
+                              blurRadius: 32,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(26),
+                          child: Image.asset(
+                            AppAssets.appIcon,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // App Name
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Vybe',
+                            style: AppTextStyles.h1.copyWith(
+                              fontSize: 38,
+                              fontWeight: FontWeight.w900,
+                              color: isDark ? Colors.white : AppColors.black,
+                            ),
+                          ),
+                          Text(
+                            'Cabs',
+                            style: AppTextStyles.h1.copyWith(
+                              fontSize: 38,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Tagline
+                      Text(
+                        AppStrings.appTagline,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 48),
+
+                      // Loading spinner
+                      const SizedBox(
+                        width: 26,
+                        height: 26,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -18,6 +18,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
     on<LoadLocationAndHotspots>(_onLoadLocationAndHotspots);
     on<SelectDestinationEvent>(_onSelectDestination);
     on<SelectPickupEvent>(_onSelectPickup);
+    on<FilterHotspotsEvent>(_onFilterHotspots);
     on<ClearDestinationEvent>(_onClearDestination);
   }
 
@@ -68,13 +69,30 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
     }
   }
 
+  void _onFilterHotspots(
+    FilterHotspotsEvent event,
+    Emitter<LocationState> emit,
+  ) {
+    if (state is LocationLoaded) {
+      final current = state as LocationLoaded;
+      emit(current.copyWith(
+        selectedCategory: event.category ?? current.selectedCategory,
+        searchQuery: event.query ?? current.searchQuery,
+      ));
+    }
+  }
+
   void _onClearDestination(
     ClearDestinationEvent event,
     Emitter<LocationState> emit,
   ) {
     if (state is LocationLoaded) {
       final current = state as LocationLoaded;
-      emit(current.copyWith(clearDestination: true));
+      emit(current.copyWith(
+        clearDestination: true,
+        selectedCategory: 'All',
+        searchQuery: '',
+      ));
     }
   }
 }

@@ -8,6 +8,7 @@ import 'core/services/service_locator.dart';
 import 'core/theme/app_theme.dart';
 import 'firebase_options.dart';
 import 'presentation/blocs/auth/auth_bloc.dart';
+import 'presentation/blocs/auth/auth_form_cubit.dart';
 import 'presentation/blocs/booking/booking_bloc.dart';
 import 'presentation/blocs/history/history_bloc.dart';
 import 'presentation/blocs/location/location_bloc.dart';
@@ -49,6 +50,7 @@ class VybeCabsApp extends StatelessWidget {
       providers: [
         BlocProvider<ThemeCubit>(create: (_) => sl<ThemeCubit>()),
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
+        BlocProvider<AuthFormCubit>(create: (_) => sl<AuthFormCubit>()),
         BlocProvider<LocationBloc>(create: (_) => sl<LocationBloc>()),
         BlocProvider<BookingBloc>(create: (_) => sl<BookingBloc>()),
         BlocProvider<TrackingBloc>(create: (_) => sl<TrackingBloc>()),
