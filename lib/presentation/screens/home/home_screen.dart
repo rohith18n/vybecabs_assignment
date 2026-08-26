@@ -20,10 +20,15 @@ import '../../widgets/map/custom_map_view.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  void _showLocationPicker(BuildContext context, List<LocationEntity> hotspots) {
+  void _showLocationPicker(
+      BuildContext context, List<LocationEntity> hotspots) {
+    context.read<LocationBloc>().add(
+          const FilterHotspotsEvent(category: 'All', query: ''),
+        );
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) {
         return LocationPickerSheet(

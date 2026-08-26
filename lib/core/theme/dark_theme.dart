@@ -117,6 +117,11 @@ ThemeData buildDarkTheme() {
         fontWeight: FontWeight.w600,
         color: AppColors.darkTextPrimary,
       ),
+      titleMedium: GoogleFonts.outfit(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        color: AppColors.darkTextPrimary,
+      ),
       bodyLarge: GoogleFonts.inter(
         fontSize: 16,
         fontWeight: FontWeight.w400,

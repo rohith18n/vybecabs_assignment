@@ -113,108 +113,129 @@ class AuthScreen extends StatelessWidget {
       ],
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
           child: Column(
             children: [
               const AuthTopBar(),
               Expanded(
-                child: Center(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    child: Form(
-                      key: formKey,
-                      child: BlocBuilder<AuthFormCubit, AuthFormState>(
-                        builder: (context, formState) {
-                          return BlocBuilder<AuthBloc, AuthState>(
-                            builder: (context, authState) {
-                              final isLoading = authState is AuthLoading;
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                      child: ConstrainedBox(
+                        constraints:
+                            BoxConstraints(minHeight: constraints.maxHeight),
+                        child: IntrinsicHeight(
+                          child: Form(
+                            key: formKey,
+                            child: BlocBuilder<AuthFormCubit, AuthFormState>(
+                              builder: (context, formState) {
+                                return BlocBuilder<AuthBloc, AuthState>(
+                                  builder: (context, authState) {
+                                    final isLoading =
+                                        authState is AuthLoading;
 
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  AuthFormHeader(
-                                    isSignUp: formState.isSignUp,
-                                    isLoading: isLoading,
-                                    onGuestLogin: () => _fillDemoCredentials(
-                                      context: context,
-                                      formKey: formKey,
-                                      emailController: emailController,
-                                      passwordController: passwordController,
-                                      nameController: nameController,
-                                      isSignUp: formState.isSignUp,
-                                    ),
-                                  ),
+                                    return Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        AuthFormHeader(
+                                          isSignUp: formState.isSignUp,
+                                          isLoading: isLoading,
+                                          onGuestLogin: () =>
+                                              _fillDemoCredentials(
+                                            context: context,
+                                            formKey: formKey,
+                                            emailController:
+                                                emailController,
+                                            passwordController:
+                                                passwordController,
+                                            nameController: nameController,
+                                            isSignUp: formState.isSignUp,
+                                          ),
+                                        ),
 
-                                  AuthInputFields(
-                                    isSignUp: formState.isSignUp,
-                                    nameController: nameController,
-                                    emailController: emailController,
-                                    passwordController: passwordController,
-                                    nameError: formState.nameError,
-                                    emailError: formState.emailError,
-                                    passwordError: formState.passwordError,
-                                    onNameChanged: (_) => context
-                                        .read<AuthFormCubit>()
-                                        .clearNameError(),
-                                    onEmailChanged: (_) => context
-                                        .read<AuthFormCubit>()
-                                        .clearEmailError(),
-                                    onPasswordChanged: (_) => context
-                                        .read<AuthFormCubit>()
-                                        .clearPasswordError(),
-                                    onSubmit: () => _submit(
-                                      context: context,
-                                      formKey: formKey,
-                                      emailController: emailController,
-                                      passwordController: passwordController,
-                                      nameController: nameController,
-                                      isSignUp: formState.isSignUp,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 24),
+                                        AuthInputFields(
+                                          isSignUp: formState.isSignUp,
+                                          nameController: nameController,
+                                          emailController: emailController,
+                                          passwordController:
+                                              passwordController,
+                                          nameError: formState.nameError,
+                                          emailError: formState.emailError,
+                                          passwordError:
+                                              formState.passwordError,
+                                          onNameChanged: (_) => context
+                                              .read<AuthFormCubit>()
+                                              .clearNameError(),
+                                          onEmailChanged: (_) => context
+                                              .read<AuthFormCubit>()
+                                              .clearEmailError(),
+                                          onPasswordChanged: (_) => context
+                                              .read<AuthFormCubit>()
+                                              .clearPasswordError(),
+                                          onSubmit: () => _submit(
+                                            context: context,
+                                            formKey: formKey,
+                                            emailController:
+                                                emailController,
+                                            passwordController:
+                                                passwordController,
+                                            nameController: nameController,
+                                            isSignUp: formState.isSignUp,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 24),
 
-                                  // Submit Button
-                                  CustomButton(
-                                    text: formState.isSignUp
-                                        ? AppStrings.signUp
-                                        : AppStrings.signIn,
-                                    isLoading: isLoading,
-                                    icon: formState.isSignUp
-                                        ? Icons.person_add_rounded
-                                        : Icons.login_rounded,
-                                    onPressed: () => _submit(
-                                      context: context,
-                                      formKey: formKey,
-                                      emailController: emailController,
-                                      passwordController: passwordController,
-                                      nameController: nameController,
-                                      isSignUp: formState.isSignUp,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 24),
+                                        // Submit Button
+                                        CustomButton(
+                                          text: formState.isSignUp
+                                              ? AppStrings.signUp
+                                              : AppStrings.signIn,
+                                          isLoading: isLoading,
+                                          icon: formState.isSignUp
+                                              ? Icons.person_add_rounded
+                                              : Icons.login_rounded,
+                                          onPressed: () => _submit(
+                                            context: context,
+                                            formKey: formKey,
+                                            emailController:
+                                                emailController,
+                                            passwordController:
+                                                passwordController,
+                                            nameController: nameController,
+                                            isSignUp: formState.isSignUp,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 20),
 
-                                  // Switch between Login and Sign Up
-                                  AuthModeSwitcher(
-                                    isSignUp: formState.isSignUp,
-                                    onToggle: () {
-                                      context
-                                          .read<AuthFormCubit>()
-                                          .toggleAuthMode();
-                                      formKey.currentState?.reset();
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
+                                        // Switch between Login and Sign Up
+                                        AuthModeSwitcher(
+                                          isSignUp: formState.isSignUp,
+                                          onToggle: () {
+                                            context
+                                                .read<AuthFormCubit>()
+                                                .toggleAuthMode();
+                                            formKey.currentState?.reset();
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             ],

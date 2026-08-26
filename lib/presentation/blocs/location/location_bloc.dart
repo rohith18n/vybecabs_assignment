@@ -55,7 +55,11 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
   ) {
     if (state is LocationLoaded) {
       final current = state as LocationLoaded;
-      emit(current.copyWith(selectedDestination: event.destination));
+      emit(current.copyWith(
+        selectedDestination: event.destination,
+        selectedCategory: 'All',
+        searchQuery: '',
+      ));
     }
   }
 

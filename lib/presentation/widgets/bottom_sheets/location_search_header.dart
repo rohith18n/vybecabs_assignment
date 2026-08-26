@@ -6,6 +6,8 @@ class LocationSearchHeader extends StatelessWidget {
   final List<String> categories;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<String> onCategorySelected;
+  final VoidCallback? onClearSearch;
+  final TextEditingController? searchController;
 
   const LocationSearchHeader({
     super.key,
@@ -13,6 +15,8 @@ class LocationSearchHeader extends StatelessWidget {
     required this.categories,
     required this.onSearchChanged,
     required this.onCategorySelected,
+    this.onClearSearch,
+    this.searchController,
   });
 
   @override
@@ -36,16 +40,20 @@ class LocationSearchHeader extends StatelessWidget {
 
           // Search Field
           TextField(
+            controller: searchController,
             onChanged: onSearchChanged,
             style: TextStyle(
-              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              color: isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
               fontSize: 13.5,
             ),
             cursorColor: AppColors.primary,
             decoration: InputDecoration(
               hintText: 'Search hotspot, tech park, mall...',
               hintStyle: TextStyle(
-                color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                color:
+                    isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                 fontSize: 13,
               ),
               prefixIcon: Icon(
@@ -55,6 +63,18 @@ class LocationSearchHeader extends StatelessWidget {
                     : AppColors.lightTextSecondary,
                 size: 18,
               ),
+              suffixIcon: (searchController?.text.isNotEmpty == true)
+                  ? IconButton(
+                      icon: const Icon(Icons.clear_rounded, size: 18),
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                      onPressed: () {
+                        searchController?.clear();
+                        onClearSearch?.call();
+                      },
+                    )
+                  : null,
               filled: true,
               fillColor: isDark ? AppColors.darkCard : AppColors.lightChip,
               contentPadding:
