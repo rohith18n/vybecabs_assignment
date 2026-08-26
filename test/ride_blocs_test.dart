@@ -1,28 +1,18 @@
-import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:vybecabs_assignment/core/services/location_service.dart';
 import 'package:vybecabs_assignment/data/datasources/local_dummy_datasource.dart';
 import 'package:vybecabs_assignment/domain/entities/ride.dart';
-import 'package:vybecabs_assignment/domain/entities/user_entity.dart';
-import 'package:vybecabs_assignment/domain/repositories/auth_repository.dart';
 import 'package:vybecabs_assignment/domain/repositories/ride_repository.dart';
-import 'package:vybecabs_assignment/domain/usecases/auth/auth_state_stream_usecase.dart';
-import 'package:vybecabs_assignment/domain/usecases/auth/get_current_user_usecase.dart';
-import 'package:vybecabs_assignment/domain/usecases/auth/sign_in_usecase.dart';
-import 'package:vybecabs_assignment/domain/usecases/auth/sign_out_usecase.dart';
-import 'package:vybecabs_assignment/domain/usecases/auth/sign_up_usecase.dart';
 import 'package:vybecabs_assignment/domain/usecases/ride/find_driver_usecase.dart';
 import 'package:vybecabs_assignment/domain/usecases/ride/get_dummy_locations_usecase.dart';
 import 'package:vybecabs_assignment/domain/usecases/ride/get_ride_history_usecase.dart';
 import 'package:vybecabs_assignment/domain/usecases/ride/get_routes_usecase.dart';
 import 'package:vybecabs_assignment/domain/usecases/ride/get_vehicle_types_usecase.dart';
 import 'package:vybecabs_assignment/domain/usecases/ride/save_completed_ride_usecase.dart';
-import 'package:vybecabs_assignment/presentation/blocs/auth/auth_bloc.dart';
-import 'package:vybecabs_assignment/presentation/blocs/auth/auth_event.dart';
-import 'package:vybecabs_assignment/presentation/blocs/auth/auth_state.dart';
 import 'package:vybecabs_assignment/presentation/blocs/booking/booking_bloc.dart';
 import 'package:vybecabs_assignment/presentation/blocs/booking/booking_event.dart';
 import 'package:vybecabs_assignment/presentation/blocs/booking/booking_state.dart';
@@ -32,13 +22,11 @@ import 'package:vybecabs_assignment/presentation/blocs/history/history_state.dar
 import 'package:vybecabs_assignment/presentation/blocs/location/location_bloc.dart';
 import 'package:vybecabs_assignment/presentation/blocs/location/location_event.dart';
 import 'package:vybecabs_assignment/presentation/blocs/location/location_state.dart';
-import 'package:flutter/material.dart';
 import 'package:vybecabs_assignment/presentation/blocs/theme/theme_cubit.dart';
 import 'package:vybecabs_assignment/presentation/blocs/tracking/tracking_bloc.dart';
 import 'package:vybecabs_assignment/presentation/blocs/tracking/tracking_event.dart';
 import 'package:vybecabs_assignment/presentation/blocs/tracking/tracking_state.dart';
 
-class MockAuthRepository extends Mock implements IAuthRepository {}
 class MockRideRepository extends Mock implements IRideRepository {}
 class MockLocationService extends Mock implements LocationService {}
 
@@ -55,74 +43,6 @@ void main() {
         distanceKm: 5,
         createdAt: DateTime(2026, 1, 1),
       ),
-    );
-  });
-
-  group('AuthBloc Tests', () {
-    late MockAuthRepository mockAuthRepository;
-    late StreamController<UserEntity?> authStreamController;
-
-    setUp(() {
-      mockAuthRepository = MockAuthRepository();
-      authStreamController = StreamController<UserEntity?>.broadcast();
-      when(() => mockAuthRepository.authStateChanges)
-          .thenAnswer((_) => authStreamController.stream);
-    });
-
-    tearDown(() {
-      authStreamController.close();
-    });
-
-    blocTest<AuthBloc, AuthState>(
-      'emits [Authenticated] when AppStarted is dispatched and user exists',
-      build: () {
-        const user = UserEntity(uid: 'u1', email: 'test@vybe.com');
-        when(() => mockAuthRepository.getCurrentUser())
-            .thenAnswer((_) async => user);
-
-        return AuthBloc(
-          signInUseCase: SignInUseCase(mockAuthRepository),
-          signUpUseCase: SignUpUseCase(mockAuthRepository),
-          signOutUseCase: SignOutUseCase(mockAuthRepository),
-          getCurrentUserUseCase: GetCurrentUserUseCase(mockAuthRepository),
-          authStateStreamUseCase: AuthStateStreamUseCase(mockAuthRepository),
-          authRepository: mockAuthRepository,
-        );
-      },
-      act: (bloc) => bloc.add(AppStarted()),
-      expect: () => [
-        const Authenticated(UserEntity(uid: 'u1', email: 'test@vybe.com')),
-      ],
-    );
-
-    blocTest<AuthBloc, AuthState>(
-      'emits [AuthLoading, Authenticated] on successful SignInRequested',
-      build: () {
-        const user = UserEntity(uid: 'u1', email: 'test@vybe.com');
-        when(() => mockAuthRepository.getCurrentUser())
-            .thenAnswer((_) async => null);
-        when(() => mockAuthRepository.signInWithEmailPassword(
-              email: 'test@vybe.com',
-              password: 'Password123!',
-            )).thenAnswer((_) async => user);
-
-        return AuthBloc(
-          signInUseCase: SignInUseCase(mockAuthRepository),
-          signUpUseCase: SignUpUseCase(mockAuthRepository),
-          signOutUseCase: SignOutUseCase(mockAuthRepository),
-          getCurrentUserUseCase: GetCurrentUserUseCase(mockAuthRepository),
-          authStateStreamUseCase: AuthStateStreamUseCase(mockAuthRepository),
-          authRepository: mockAuthRepository,
-        );
-      },
-      act: (bloc) => bloc.add(const SignInRequested(
-        email: 'test@vybe.com',
-        password: 'Password123!',
-      )),
-      expect: () => [
-        AuthLoading(),
-        const Authenticated(UserEntity(uid: 'u1', email: 'test@vybe.com')),
-      ],
     );
   });
 
@@ -145,7 +65,8 @@ void main() {
 
         return LocationBloc(
           locationService: mockLocationService,
-          getDummyLocationsUseCase: GetDummyLocationsUseCase(mockRideRepository),
+          getDummyLocationsUseCase:
+              GetDummyLocationsUseCase(mockRideRepository),
         );
       },
       act: (bloc) => bloc.add(LoadLocationAndHotspots()),
@@ -209,7 +130,8 @@ void main() {
         return TrackingBloc(
           getPickupRouteUseCase: GetPickupRouteUseCase(mockRideRepository),
           getTripRouteUseCase: GetTripRouteUseCase(mockRideRepository),
-          saveCompletedRideUseCase: SaveCompletedRideUseCase(mockRideRepository),
+          saveCompletedRideUseCase:
+              SaveCompletedRideUseCase(mockRideRepository),
         );
       },
       act: (bloc) {

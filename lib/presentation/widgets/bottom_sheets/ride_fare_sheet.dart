@@ -4,7 +4,8 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../domain/entities/location_entity.dart';
 import '../../../../domain/entities/vehicle_type.dart';
 import '../cards/vehicle_option_card.dart';
-import '../common/custom_button.dart';
+import 'fare_payment_action_row.dart';
+import 'fare_route_summary_card.dart';
 
 class RideFareSheet extends StatelessWidget {
   final LocationEntity pickup;
@@ -34,13 +35,12 @@ class RideFareSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Floating Zomato-style Close Button
+        // Floating Close Button
         if (onClose != null)
           Center(
             child: GestureDetector(
@@ -99,227 +99,63 @@ class RideFareSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Route Summary Card
-                  Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkCard : AppColors.lightChip,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                    width: 1,
+                  FareRouteSummaryCard(
+                    pickup: pickup,
+                    destination: destination,
+                    onChangeDestination: onChangeDestination,
                   ),
-                ),
-                child: Row(
-                  children: [
-                    // Sleek Route Indicator
-                    Column(
-                      children: [
-                        Container(
-                          width: 9,
-                          height: 9,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.success,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.success.withValues(alpha: 0.4),
-                                blurRadius: 4,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          width: 1.5,
-                          height: 24,
-                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                        ),
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(2),
-                            color: AppColors.primary,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.4),
-                                blurRadius: 4,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 12),
+                  const SizedBox(height: 10),
 
-                    // Pickup / Drop texts
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            pickup.title,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            destination.title,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Change Destination / Edit Route button
-                    InkWell(
-                      onTap: onChangeDestination,
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: isDark ? AppColors.darkCardElevated : AppColors.lightSurface,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.edit_outlined,
-                              size: 13,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Edit',
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                              ),
-                            ),
-                          ],
+                  // Section Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Available Cabs',
+                        style: TextStyle(
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // Section Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Available Cabs',
-                    style: TextStyle(
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                  Text(
-                    '${distanceKm.toStringAsFixed(1)} km • ~${(distanceKm * 2.5).ceil() + 3} min trip',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 11.5,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-
-              // Vehicle Options
-              ...availableVehicles.map((vehicle) {
-                final isSelected = vehicle.id == selectedVehicle.id;
-                return VehicleOptionCard(
-                  vehicle: vehicle,
-                  isSelected: isSelected,
-                  distanceKm: distanceKm,
-                  onSelect: () => onVehicleSelected(vehicle),
-                );
-              }),
-
-              const SizedBox(height: 12),
-
-              // Bottom Action Row: [Payment Option] [Book CTA Button]
-              Row(
-                children: [
-                  // Payment Method Option (Left of Book button)
-                  Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkCard : AppColors.lightChip,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.account_balance_wallet_rounded,
+                      Text(
+                        '${distanceKm.toStringAsFixed(1)} km • ~${(distanceKm * 2.5).ceil() + 3} min trip',
+                        style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.primary,
-                          size: 18,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11.5,
                         ),
-                        const SizedBox(width: 8),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Vybe Pay',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              'UPI on Drop',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                fontSize: 10,
-                                color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(height: 4),
 
-                  // Book Ride CTA Button (Expanded)
-                  Expanded(
-                    child: CustomButton(
-                      text: 'Book ${selectedVehicle.name}',
-                      height: 50.0,
-                      onPressed: onBookRide,
-                    ),
+                  // Vehicle Options
+                  ...availableVehicles.map((vehicle) {
+                    final isSelected = vehicle.id == selectedVehicle.id;
+                    return VehicleOptionCard(
+                      vehicle: vehicle,
+                      isSelected: isSelected,
+                      distanceKm: distanceKm,
+                      onSelect: () => onVehicleSelected(vehicle),
+                    );
+                  }),
+
+                  const SizedBox(height: 12),
+
+                  // Bottom Action Row: Payment Option & Book Button
+                  FarePaymentActionRow(
+                    selectedVehicle: selectedVehicle,
+                    onBookRide: onBookRide,
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
-    ),
-  ],
-);
+      ],
+    );
   }
 }

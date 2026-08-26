@@ -1,11 +1,10 @@
-import 'dart:math' as math;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../../core/utils/geo_utils.dart';
+import '../../core/utils/path_generator.dart';
 import '../models/driver_model.dart';
 import '../models/location_model.dart';
 import '../models/ride_model.dart';
 import '../models/vehicle_type_model.dart';
-import '../../domain/entities/ride.dart';
+import 'dummy_seed_history.dart';
 
 class LocalDummyDataSource {
   // Hardcoded Hotspots / Locations
@@ -148,197 +147,18 @@ class LocalDummyDataSource {
   ];
 
   // Dummy Past Ride History (5-6 rides)
-  static List<RideModel> getInitialRideHistory() {
-    return [
-      RideModel(
-        id: 'vybe_hist_01',
-        pickup: const LocationModel(
-          id: 'hloc_1',
-          title: 'Indiranagar Metro Station',
-          subtitle: 'CMH Road, Indiranagar',
-          latitude: 12.9784,
-          longitude: 77.6408,
-          category: 'Station',
-        ),
-        destination: const LocationModel(
-          id: 'hloc_2',
-          title: 'Manyata Embassy Business Park',
-          subtitle: 'Outer Ring Road, Hebbal',
-          latitude: 13.0485,
-          longitude: 77.6200,
-          category: 'Tech Park',
-        ),
-        vehicleType: dummyVehicles[1], // Vybe EV Prime
-        driver: dummyDrivers[0],
-        fare: 345.0,
-        distanceKm: 12.8,
-        createdAt: DateTime.now().subtract(const Duration(hours: 18)),
-        status: RideStatus.completed,
-        userRating: 5.0,
-      ),
-      RideModel(
-        id: 'vybe_hist_02',
-        pickup: const LocationModel(
-          id: 'hloc_3',
-          title: 'Koramangala Forum Mall',
-          subtitle: 'Hosur Road, Koramangala',
-          latitude: 12.9352,
-          longitude: 77.6145,
-          category: 'Mall',
-        ),
-        destination: const LocationModel(
-          id: 'hloc_4',
-          title: 'Kempegowda Intl Airport BLR',
-          subtitle: 'Terminal 1 Departures',
-          latitude: 13.1986,
-          longitude: 77.7066,
-          category: 'Airport',
-        ),
-        vehicleType: dummyVehicles[3], // Vybe XL
-        driver: dummyDrivers[1],
-        fare: 1180.0,
-        distanceKm: 41.2,
-        createdAt: DateTime.now().subtract(const Duration(days: 2, hours: 4)),
-        status: RideStatus.completed,
-        userRating: 5.0,
-      ),
-      RideModel(
-        id: 'vybe_hist_03',
-        pickup: const LocationModel(
-          id: 'hloc_5',
-          title: 'UB City Mall',
-          subtitle: 'Vittal Mallya Road',
-          latitude: 12.9716,
-          longitude: 77.5958,
-          category: 'Mall',
-        ),
-        destination: const LocationModel(
-          id: 'hloc_6',
-          title: 'Indiranagar 100ft Road',
-          subtitle: '12th Main Junction',
-          latitude: 12.9784,
-          longitude: 77.6408,
-          category: 'Popular',
-        ),
-        vehicleType: dummyVehicles[0], // Vybe Go
-        driver: dummyDrivers[2],
-        fare: 165.0,
-        distanceKm: 5.4,
-        createdAt: DateTime.now().subtract(const Duration(days: 4, hours: 1)),
-        status: RideStatus.completed,
-        userRating: 4.8,
-      ),
-      RideModel(
-        id: 'vybe_hist_04',
-        pickup: const LocationModel(
-          id: 'hloc_7',
-          title: 'MG Road Metro Station',
-          subtitle: 'MG Road, Shivajinagar',
-          latitude: 12.9756,
-          longitude: 77.6066,
-          category: 'Station',
-        ),
-        destination: const LocationModel(
-          id: 'hloc_8',
-          title: 'Koramangala 5th Block',
-          subtitle: '80ft Road, Koramangala',
-          latitude: 12.9352,
-          longitude: 77.6245,
-          category: 'Popular',
-        ),
-        vehicleType: dummyVehicles[2], // Vybe Sedan
-        driver: dummyDrivers[0],
-        fare: 210.0,
-        distanceKm: 6.8,
-        createdAt: DateTime.now().subtract(const Duration(days: 6, hours: 7)),
-        status: RideStatus.completed,
-        userRating: 5.0,
-      ),
-      RideModel(
-        id: 'vybe_hist_05',
-        pickup: const LocationModel(
-          id: 'hloc_9',
-          title: 'Church Street',
-          subtitle: 'Brigade Road Junction',
-          latitude: 12.9744,
-          longitude: 77.6030,
-          category: 'Popular',
-        ),
-        destination: const LocationModel(
-          id: 'hloc_10',
-          title: 'Majestic City Railway Station',
-          subtitle: 'Platform 1 Entrance',
-          latitude: 12.9774,
-          longitude: 77.5729,
-          category: 'Station',
-        ),
-        vehicleType: dummyVehicles[0], // Vybe Go
-        driver: dummyDrivers[1],
-        fare: 140.0,
-        distanceKm: 4.2,
-        createdAt: DateTime.now().subtract(const Duration(days: 8, hours: 3)),
-        status: RideStatus.completed,
-        userRating: 4.7,
-      ),
-      RideModel(
-        id: 'vybe_hist_06',
-        pickup: const LocationModel(
-          id: 'hloc_11',
-          title: 'Whitefield ITPL Main Gate',
-          subtitle: 'Pattandur Agrahara',
-          latitude: 12.9866,
-          longitude: 77.7289,
-          category: 'Tech Park',
-        ),
-        destination: const LocationModel(
-          id: 'hloc_12',
-          title: 'Indiranagar 100ft Road',
-          subtitle: 'Near Metro Station',
-          latitude: 12.9784,
-          longitude: 77.6408,
-          category: 'Popular',
-        ),
-        vehicleType: dummyVehicles[1], // Vybe EV Prime
-        driver: dummyDrivers[2],
-        fare: 395.0,
-        distanceKm: 14.5,
-        createdAt: DateTime.now().subtract(const Duration(days: 11, hours: 10)),
-        status: RideStatus.completed,
-        userRating: 5.0,
-      ),
-    ];
-  }
+  static List<RideModel> getInitialRideHistory() => getInitialRideHistorySeed();
 
-  /// Generates a realistic curved / Manhattan-like waypoint path between start and end coordinates
+  // Route Polyline Generator (Simulation for smooth animation)
   static List<LatLng> generateSimulatedPath(
     LatLng start,
     LatLng end, {
-    int waypointCount = 12,
+    int waypointCount = 18,
   }) {
-    final List<LatLng> path = [];
-    path.add(start);
-
-    // Create realistic road zigzag waypoints
-    final double latDiff = end.latitude - start.latitude;
-    final double lngDiff = end.longitude - start.longitude;
-
-    for (int i = 1; i <= waypointCount; i++) {
-      final double progress = i / (waypointCount + 1);
-
-      // Add gentle sine curve offset to simulate city road turns
-      final double curveOffset = math.sin(progress * math.pi) * 0.0025;
-      final double jitter = math.sin(progress * math.pi * 3) * 0.0008;
-
-      final double lat = start.latitude + (latDiff * progress) + curveOffset;
-      final double lng =
-          start.longitude + (lngDiff * progress) - (jitter * 0.5);
-
-      path.add(LatLng(lat, lng));
-    }
-
-    path.add(end);
-
-    // Subdivide path for ultra-smooth 60fps / step-wise marker animation
-    return GeoUtils.subdividePath(path, stepsBetween: 3);
+    return PathGenerator.generateSimulatedPath(
+      start,
+      end,
+      waypointCount: waypointCount,
+    );
   }
 }

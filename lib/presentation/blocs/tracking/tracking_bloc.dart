@@ -6,6 +6,7 @@ import '../../../domain/entities/driver.dart';
 import '../../../domain/entities/ride.dart';
 import '../../../domain/usecases/ride/get_routes_usecase.dart';
 import '../../../domain/usecases/ride/save_completed_ride_usecase.dart';
+import 'tracking_calculator.dart';
 import 'tracking_event.dart';
 import 'tracking_state.dart';
 
@@ -37,6 +38,42 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     on<ResetTrackingEvent>(_onResetTracking);
   }
 
+  void _startWaypointTicker({required bool isApproach}) {
+    _movementTimer?.cancel();
+    _movementTimer =
+        Timer.periodic(const Duration(milliseconds: 1400), (timer) {
+      if (_currentIndex < _currentPath.length - 1) {
+        _currentIndex++;
+        final currentPoint = _currentPath[_currentIndex];
+        final nextPoint = _currentIndex + 1 < _currentPath.length
+            ? _currentPath[_currentIndex + 1]
+            : _currentPath[_currentIndex];
+        final bearing = GeoUtils.calculateBearing(currentPoint, nextPoint);
+
+        if (isApproach) {
+          add(DriverApproachTickEvent(
+            newLocation: currentPoint,
+            bearing: bearing,
+            remainingWaypointIndex: _currentIndex,
+          ));
+        } else {
+          add(TripProgressTickEvent(
+            newLocation: currentPoint,
+            bearing: bearing,
+            remainingWaypointIndex: _currentIndex,
+          ));
+        }
+      } else {
+        timer.cancel();
+        if (isApproach) {
+          add(DriverArrivedEvent());
+        } else {
+          add(const CompleteTripEvent());
+        }
+      }
+    });
+  }
+
   Future<void> _onStartLiveTracking(
     StartLiveTrackingEvent event,
     Emitter<TrackingState> emit,
@@ -47,10 +84,10 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     _activeRide = event.ride;
     _activeDriver = event.ride.driver!;
 
-    final driverStart = LatLng(_activeDriver!.latitude, _activeDriver!.longitude);
+    final driverStart =
+        LatLng(_activeDriver!.latitude, _activeDriver!.longitude);
     final pickupPoint = event.ride.pickup.latLng;
 
-    // Fetch pickup route
     _currentPath = await _getPickupRouteUseCase(driverStart, pickupPoint);
     _currentIndex = 0;
 
@@ -70,31 +107,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       etaSeconds: 117,
     ));
 
-    // Start animated waypoint ticks every 1.4s
-    _startApproachMovement();
-  }
-
-  void _startApproachMovement() {
-    _movementTimer?.cancel();
-    _movementTimer = Timer.periodic(const Duration(milliseconds: 1400), (timer) {
-      if (_currentIndex < _currentPath.length - 1) {
-        _currentIndex++;
-        final currentPoint = _currentPath[_currentIndex];
-        final nextPoint = _currentIndex + 1 < _currentPath.length
-            ? _currentPath[_currentIndex + 1]
-            : _currentPath[_currentIndex];
-        final bearing = GeoUtils.calculateBearing(currentPoint, nextPoint);
-
-        add(DriverApproachTickEvent(
-          newLocation: currentPoint,
-          bearing: bearing,
-          remainingWaypointIndex: _currentIndex,
-        ));
-      } else {
-        timer.cancel();
-        add(DriverArrivedEvent());
-      }
-    });
+    _startWaypointTicker(isApproach: true);
   }
 
   void _onDriverApproachTick(
@@ -104,13 +117,10 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     if (state is DriverApproachingState) {
       final current = state as DriverApproachingState;
       final remaining = _currentPath.sublist(event.remainingWaypointIndex);
-      final int totalPoints = _currentPath.length;
-      final double fractionRemaining =
-          (totalPoints - event.remainingWaypointIndex) / totalPoints;
-      final int totalSeconds = 120;
-      final int remainingSeconds =
-          (fractionRemaining * totalSeconds).round().clamp(5, totalSeconds);
-      final int remainingEta = (remainingSeconds / 60).ceil().clamp(1, 3);
+      final eta = TrackingCalculator.calculateApproachEta(
+        event.remainingWaypointIndex,
+        _currentPath.length,
+      );
 
       emit(DriverApproachingState(
         ride: current.ride,
@@ -119,8 +129,8 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         bearing: event.bearing,
         fullPolyline: current.fullPolyline,
         remainingPolyline: remaining,
-        etaMinutes: remainingEta,
-        etaSeconds: remainingSeconds,
+        etaMinutes: eta.etaMinutes,
+        etaSeconds: eta.etaSeconds,
       ));
     }
   }
@@ -155,7 +165,6 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     final pickupPoint = inProgressRide.pickup.latLng;
     final destinationPoint = inProgressRide.destination.latLng;
 
-    // Fetch trip route to destination
     _currentPath = await _getTripRouteUseCase(pickupPoint, destinationPoint);
     _currentIndex = 0;
 
@@ -176,31 +185,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       progressPercent: 0.0,
     ));
 
-    // Start animated waypoint ticks every 1.4s towards dropoff
-    _startTripMovement();
-  }
-
-  void _startTripMovement() {
-    _movementTimer?.cancel();
-    _movementTimer = Timer.periodic(const Duration(milliseconds: 1400), (timer) {
-      if (_currentIndex < _currentPath.length - 1) {
-        _currentIndex++;
-        final currentPoint = _currentPath[_currentIndex];
-        final nextPoint = _currentIndex + 1 < _currentPath.length
-            ? _currentPath[_currentIndex + 1]
-            : _currentPath[_currentIndex];
-        final bearing = GeoUtils.calculateBearing(currentPoint, nextPoint);
-
-        add(TripProgressTickEvent(
-          newLocation: currentPoint,
-          bearing: bearing,
-          remainingWaypointIndex: _currentIndex,
-        ));
-      } else {
-        timer.cancel();
-        add(const CompleteTripEvent());
-      }
-    });
+    _startWaypointTicker(isApproach: false);
   }
 
   void _onTripProgressTick(
@@ -210,11 +195,10 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     if (state is TripInProgressState) {
       final current = state as TripInProgressState;
       final remaining = _currentPath.sublist(event.remainingWaypointIndex);
-      final double progress = event.remainingWaypointIndex / (_currentPath.length - 1);
-      final int totalTripSeconds = 360;
-      final int remainingTripSeconds =
-          ((1.0 - progress) * totalTripSeconds).round().clamp(5, totalTripSeconds);
-      final int remainingEta = (remainingTripSeconds / 60).ceil().clamp(1, 6);
+      final tripEta = TrackingCalculator.calculateTripEta(
+        event.remainingWaypointIndex,
+        _currentPath.length,
+      );
 
       emit(TripInProgressState(
         ride: current.ride,
@@ -223,9 +207,9 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         bearing: event.bearing,
         fullPolyline: current.fullPolyline,
         remainingPolyline: remaining,
-        etaMinutes: remainingEta,
-        etaSeconds: remainingTripSeconds,
-        progressPercent: progress,
+        etaMinutes: tripEta.etaMinutes,
+        etaSeconds: tripEta.etaSeconds,
+        progressPercent: tripEta.progress,
       ));
     }
   }
@@ -242,9 +226,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       userRating: event.rating ?? 5.0,
     );
 
-    // Save completed ride to history
     await _saveCompletedRideUseCase(completedRide);
-
     emit(TripCompletedState(completedRide));
   }
 

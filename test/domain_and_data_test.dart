@@ -186,7 +186,7 @@ void main() {
         vehicleType: LocalDummyDataSource.dummyVehicles[0],
         fare: 220.0,
         distanceKm: 8.5,
-        createdAt: DateTime(2026, 8, 25, 14, 0),
+        createdAt: DateTime.now().add(const Duration(minutes: 1)),
         status: RideStatus.completed,
       );
 
