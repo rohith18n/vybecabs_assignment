@@ -13,6 +13,7 @@ class CustomTextField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final TextInputAction textInputAction;
   final VoidCallback? onEditingComplete;
+  final String? errorText;
 
   const CustomTextField({
     super.key,
@@ -27,6 +28,7 @@ class CustomTextField extends StatefulWidget {
     this.onChanged,
     this.textInputAction = TextInputAction.next,
     this.onEditingComplete,
+    this.errorText,
   });
 
   @override
@@ -74,6 +76,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
           cursorColor: AppColors.primary,
           decoration: InputDecoration(
             hintText: widget.hint,
+            errorText: widget.errorText,
+            errorMaxLines: 3,
             hintStyle: TextStyle(
               color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
               fontSize: 14,

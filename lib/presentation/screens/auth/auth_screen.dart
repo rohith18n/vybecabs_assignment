@@ -28,6 +28,9 @@ class _AuthScreenState extends State<AuthScreen> {
   final _nameController = TextEditingController();
 
   bool _isSignUp = false;
+  String? _nameError;
+  String? _emailError;
+  String? _passwordError;
 
   @override
   void dispose() {
@@ -37,7 +40,54 @@ class _AuthScreenState extends State<AuthScreen> {
     super.dispose();
   }
 
+  void _clearErrors() {
+    if (_nameError != null || _emailError != null || _passwordError != null) {
+      setState(() {
+        _nameError = null;
+        _emailError = null;
+        _passwordError = null;
+      });
+    }
+  }
+
+  void _handleAuthError(String errorMessage) {
+    final lower = errorMessage.toLowerCase();
+
+    setState(() {
+      if (lower.contains('already registered') ||
+          lower.contains('already in use') ||
+          lower.contains('user registered') ||
+          lower.contains('user-not-found') ||
+          lower.contains('valid email') ||
+          (lower.contains('email') && !lower.contains('password'))) {
+        _emailError = errorMessage;
+        _passwordError = null;
+        _nameError = null;
+      } else if (lower.contains('password') ||
+          lower.contains('credential') ||
+          lower.contains('weak')) {
+        _passwordError = errorMessage;
+        _emailError = null;
+        _nameError = null;
+      } else if (lower.contains('name')) {
+        _nameError = errorMessage;
+        _emailError = null;
+        _passwordError = null;
+      } else {
+        _emailError = null;
+        _passwordError = null;
+        _nameError = null;
+        UiHelpers.showSnackBar(
+          context,
+          message: errorMessage,
+          isError: true,
+        );
+      }
+    });
+  }
+
   void _submit() {
+    _clearErrors();
     if (!_formKey.currentState!.validate()) return;
 
     final email = _emailController.text.trim();
@@ -63,6 +113,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _fillDemoCredentials() {
+    _clearErrors();
     _emailController.text = 'rider@vybecabs.com';
     _passwordController.text = 'Password123!';
     _nameController.text = 'Alex Rider';
@@ -83,11 +134,7 @@ class _AuthScreenState extends State<AuthScreen> {
           );
           context.go(RoutePaths.home);
         } else if (state is AuthFailureState) {
-          UiHelpers.showSnackBar(
-            context,
-            message: state.errorMessage,
-            isError: true,
-          );
+          _handleAuthError(state.errorMessage);
         } else if (state is PasswordResetSent) {
           UiHelpers.showSnackBar(
             context,
@@ -221,27 +268,27 @@ class _AuthScreenState extends State<AuthScreen> {
                             ),
                             const SizedBox(height: 24),
 
-                            // Quick Demo Login Chip
-                            Center(
-                              child: ActionChip(
-                                avatar: const Icon(Icons.flash_on_rounded,
-                                    size: 16, color: AppColors.primary),
-                                label: Text(
-                                  AppStrings.demoLogin,
-                                  style: AppTextStyles.labelSmall.copyWith(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.w700,
+                            // Guest Login Chip (Login Screen only)
+                            if (!_isSignUp) ...[
+                              Center(
+                                child: ActionChip(
+                                  label: Text(
+                                    AppStrings.guestLogin,
+                                    style: AppTextStyles.labelSmall.copyWith(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
+                                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                                  side: const BorderSide(color: AppColors.primary, width: 1),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  onPressed: isLoading ? null : _fillDemoCredentials,
                                 ),
-                                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                                side: const BorderSide(color: AppColors.primary, width: 1),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                onPressed: isLoading ? null : _fillDemoCredentials,
                               ),
-                            ),
-                            const SizedBox(height: 20),
+                              const SizedBox(height: 20),
+                            ],
 
                             // Sign Up - Display Name Field
                             if (_isSignUp) ...[
@@ -251,6 +298,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                 controller: _nameController,
                                 prefixIcon: Icons.person_outline_rounded,
                                 textInputAction: TextInputAction.next,
+                                errorText: _nameError,
+                                onChanged: (value) {
+                                  if (_nameError != null) {
+                                    setState(() => _nameError = null);
+                                  }
+                                },
                                 validator: (value) {
                                   if (_isSignUp && (value == null || value.trim().isEmpty)) {
                                     return 'Please enter your name';
@@ -269,6 +322,12 @@ class _AuthScreenState extends State<AuthScreen> {
                               keyboardType: TextInputType.emailAddress,
                               prefixIcon: Icons.email_outlined,
                               textInputAction: TextInputAction.next,
+                              errorText: _emailError,
+                              onChanged: (value) {
+                                if (_emailError != null) {
+                                  setState(() => _emailError = null);
+                                }
+                              },
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
                                   return 'Please enter your email';
@@ -292,6 +351,12 @@ class _AuthScreenState extends State<AuthScreen> {
                               prefixIcon: Icons.lock_outline_rounded,
                               textInputAction: TextInputAction.done,
                               onEditingComplete: _submit,
+                              errorText: _passwordError,
+                              onChanged: (value) {
+                                if (_passwordError != null) {
+                                  setState(() => _passwordError = null);
+                                }
+                              },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your password';
@@ -302,37 +367,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 return null;
                               },
                             ),
-
-                            if (!_isSignUp) ...[
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: TextButton(
-                                  onPressed: () {
-                                    final email = _emailController.text.trim();
-                                    if (email.isEmpty) {
-                                      UiHelpers.showSnackBar(
-                                        context,
-                                        message: 'Please enter your email above first.',
-                                      );
-                                      return;
-                                    }
-                                    context
-                                        .read<AuthBloc>()
-                                        .add(SendPasswordResetRequested(email));
-                                  },
-                                  child: Text(
-                                    AppStrings.forgotPassword,
-                                    style: AppTextStyles.labelSmall.copyWith(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ] else
-                              const SizedBox(height: 16),
-
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 24),
 
                             // Submit Button
                             CustomButton(
@@ -364,7 +399,11 @@ class _AuthScreenState extends State<AuthScreen> {
                                   onTap: () {
                                     setState(() {
                                       _isSignUp = !_isSignUp;
+                                      _nameError = null;
+                                      _emailError = null;
+                                      _passwordError = null;
                                     });
+                                    _formKey.currentState?.reset();
                                   },
                                   child: Text(
                                     _isSignUp ? AppStrings.signIn : AppStrings.signUp,

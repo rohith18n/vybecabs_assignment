@@ -6,9 +6,11 @@ class AppStrings {
 
   // Auth
   static const String welcomeBack = 'Welcome Back';
-  static const String loginSubtitle = 'Sign in with your email & password to start riding';
+  static const String loginSubtitle =
+      'Sign in with your email & password to start riding';
   static const String createAccount = 'Create Account';
-  static const String signupSubtitle = 'Join VybeCabs for smart, electrified urban transit';
+  static const String signupSubtitle =
+      'Join VybeCabs for smart, electrified urban transit';
   static const String emailLabel = 'Email Address';
   static const String emailHint = 'rider@vybecabs.com';
   static const String passwordLabel = 'Password';
@@ -16,7 +18,7 @@ class AppStrings {
   static const String confirmPasswordLabel = 'Confirm Password';
   static const String signIn = 'Sign In';
   static const String signUp = 'Sign Up';
-  static const String demoLogin = '⚡ Quick Demo Login';
+  static const String guestLogin = 'Guest Login';
   static const String forgotPassword = 'Forgot Password?';
   static const String noAccount = "Don't have an account? ";
   static const String haveAccount = 'Already have an account? ';
@@ -32,16 +34,19 @@ class AppStrings {
 
   // Finding Driver
   static const String findingDriver = 'Finding Your Vybe...';
-  static const String contactingNearby = 'Matching with top-rated nearby drivers';
+  static const String contactingNearby =
+      'Matching with top-rated nearby drivers';
   static const String driverFound = 'Driver Assigned!';
   static const String cancelSearch = 'Cancel Ride';
 
   // Tracking
   static const String driverOnTheWay = 'Driver is on the way';
   static const String driverArrived = 'Driver has Arrived!';
-  static const String driverArrivedDesc = 'Meet your driver at the pickup location';
+  static const String driverArrivedDesc =
+      'Meet your driver at the pickup location';
   static const String tripInProgress = 'Trip in Progress';
-  static const String tripInProgressDesc = 'Heading to your destination smoothly';
+  static const String tripInProgressDesc =
+      'Heading to your destination smoothly';
   static const String etaLabel = 'ETA';
   static const String otpLabel = 'Start OTP: 4 8 2 9';
   static const String startTrip = 'Start Ride';
